@@ -1,4 +1,9 @@
-GET http://localhost:8080/
+
+GET http://localhost:8080/home/all
+
+###
+
+GET http://localhost:8080/home/user/1
 
 ###
 
@@ -26,6 +31,7 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:8080/home/all
+
+DELETE http://localhost:8080/home/1
 
 ###
