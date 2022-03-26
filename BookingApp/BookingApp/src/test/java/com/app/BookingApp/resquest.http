@@ -1,0 +1,31 @@
+GET http://localhost:8080/
+
+###
+
+POST http://localhost:8080/home/add
+Content-Type: application/json
+
+{
+    "name": "ajay",
+    "mobileNumber": "822031510",
+    "emailAddress": "ajay@gmail.com",
+    "dateOfBirth": "2000-05-19"
+}
+
+###
+
+POST http://localhost:8080/home/add
+Content-Type: application/json
+
+{
+    "name": "yuvaraj",
+    "mobileNumber": "9876543210",
+    "emailAddress": "raj@gmail.com",
+    "dateOfBirth": "1990-03-15"
+}
+
+###
+
+GET http://localhost:8080/home/all
+
+###
