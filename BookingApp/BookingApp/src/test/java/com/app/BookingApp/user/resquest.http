@@ -14,7 +14,8 @@ Content-Type: application/json
     "name": "ajay",
     "mobileNumber": "822031510",
     "emailAddress": "ajay@gmail.com",
-    "dateOfBirth": "2000-05-19"
+    "dateOfBirth": "2000-05-19",
+    "password": "password"
 }
 
 ###
@@ -23,10 +24,11 @@ POST http://localhost:8080/home/add
 Content-Type: application/json
 
 {
-    "name": "yuvaraj",
+    "name": "raj",
     "mobileNumber": "9876543210",
     "emailAddress": "raj@gmail.com",
-    "dateOfBirth": "1990-03-15"
+    "dateOfBirth": "1990-02-15",
+    "password": "password"
 }
 
 ###
@@ -35,3 +37,15 @@ Content-Type: application/json
 DELETE http://localhost:8080/home/1
 
 ###
+
+PUT http://localhost:8080/home/1?name="raj"
+
+###
+
+POST http://localhost:8080/home/verify
+Content-Type: application/json
+
+{
+    "mobileNumber": "822031510",
+    "password": "pass1word"
+}

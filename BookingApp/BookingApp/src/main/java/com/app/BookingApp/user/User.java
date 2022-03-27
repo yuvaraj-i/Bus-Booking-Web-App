@@ -12,13 +12,14 @@ import javax.persistence.Table;
 @Table
 public class User {
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String name;
     private String mobileNumber;
     private String emailAddress;
     private LocalDate dateOfBirth;
     private int age;
+    private String password;
 
     public long getId() {
         return this.id;
@@ -44,6 +45,10 @@ public class User {
         return this.age;
     }
 
+    public String getPassword() {
+        return this.password;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -65,13 +70,16 @@ public class User {
         this.setAge(dateOfBirth);
     }
 
+    public void setAge(int age) {
+        this.age = age;
+    }
+
     private void setAge(LocalDate age) {
         LocalDate currentDate = LocalDate.now();
         this.age = currentDate.getYear() - age.getYear();
     }
 
-    public void setAge(int age){
-        this.age = age;
+    public void setPassword(String password) {
+        this.password = password;
     }
-
 }
