@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/home")
+@RequestMapping("/user")
 public class UserController {
 
   private UserService userService;
@@ -33,7 +33,7 @@ public class UserController {
     userService.addNewUser(user);
   }
 
-  @GetMapping(path = "user/{id}")
+  @GetMapping(path = "{id}")
   public Optional<User> getUser(@PathVariable("id") Long id) {
     return userService.getUser(id);
   }
