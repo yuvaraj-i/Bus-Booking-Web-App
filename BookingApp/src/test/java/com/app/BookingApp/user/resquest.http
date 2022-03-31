@@ -1,13 +1,13 @@
 
-GET http://localhost:8080/home/all
+GET http://localhost:8080/sigup/get/all
 
 ###
 
-GET http://localhost:8080/home/user/1
+GET http://localhost:8080/sigup/get/1
 
 ###
 
-POST http://localhost:8080/home/add
+POST http://localhost:8080/sigup
 Content-Type: application/json
 
 {
@@ -20,7 +20,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8080/home/add
+POST http://localhost:8080/sigup/
 Content-Type: application/json
 
 {
@@ -33,7 +33,7 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:8080/home/1
+DELETE http://localhost:8080/user/1
 
 ###
 
@@ -41,7 +41,7 @@ PUT http://localhost:8080/home/1?name="raj"
 
 ###
 
-POST http://localhost:8080/home/verify
+POST http://localhost:8080/user/verify
 Content-Type: application/json
 
 {

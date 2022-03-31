@@ -1,4 +1,4 @@
-package com.app.BookingApp.model;
+package com.app.BookingApp.models;
 
 import java.time.LocalDate;
 
@@ -10,10 +10,10 @@ import javax.persistence.Table;
 
 @Entity
 @Table
-public class User {
+public class MyUser {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
     private String name;
     private String mobileNumber;
     private String emailAddress;
@@ -21,7 +21,7 @@ public class User {
     private int age;
     private String password;
 
-    public long getId() {
+    public Long getId() {
         return this.id;
     }
 
@@ -49,7 +49,7 @@ public class User {
         return this.password;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

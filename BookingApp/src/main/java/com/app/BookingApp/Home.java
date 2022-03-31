@@ -11,7 +11,12 @@ public class Home {
     @RequestMapping("/greeting")
     public String home(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model){
         model.addAttribute("name", name);
-		return "greeting";
+
+		return "greeting.jsp";
     }
     
+    @RequestMapping("/")
+    public String hello(){
+        return "home.jsp";
+    }
 }
