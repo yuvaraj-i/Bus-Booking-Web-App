@@ -9,6 +9,13 @@
     <title>Document</title>
 </head>
 <body>
-    <p>Hello World! home jsp</p>
+    <h1 style="text-align: center;">Bus Ticket Booking</h1>
+    <form action="/login" method="get">
+        <label for="number">Mobile Number</label><br>
+        <input type="text" id="number" name="mobileNumber"><br>
+        <label for="password">Password</label><br>
+        <input type="password" id="password" name="password">
+        <button>Login</button>
+      </form>
 </body>
 </html>

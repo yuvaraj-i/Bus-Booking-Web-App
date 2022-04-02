@@ -1,11 +1,5 @@
 package com.app.BookingApp;
 
-import com.app.BookingApp.configuration.JwtTokenUtils;
-import com.app.BookingApp.models.MyClaims;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 public class JwtUtilsTest {
     // JwtTokenUtils jawt;
     // MyClaims claims;

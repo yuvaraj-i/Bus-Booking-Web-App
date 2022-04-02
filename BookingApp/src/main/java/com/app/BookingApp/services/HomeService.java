@@ -12,7 +12,6 @@ import com.app.BookingApp.reposistory.MyUserResposistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,15 +19,13 @@ public class HomeService {
 
     private AuthenticationManager authenticationManager;
     private JwtTokenUtils jwtUtils;
-    private MyUserService userService;
     private MyUserResposistory userResposistory;
 
     @Autowired
-    public HomeService(AuthenticationManager authenticationManager,
-            JwtTokenUtils jwtUtils, MyUserService userService, MyUserResposistory userResposistory) {
+    public HomeService(AuthenticationManager authenticationManager, JwtTokenUtils jwtUtils,
+            MyUserResposistory userResposistory) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
-        this.userService = userService;
         this.userResposistory = userResposistory;
     }
 
