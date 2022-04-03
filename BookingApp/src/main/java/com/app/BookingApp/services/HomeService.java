@@ -4,6 +4,9 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
 import com.app.BookingApp.configuration.JwtTokenUtils;
 import com.app.BookingApp.models.MyClaims;
 import com.app.BookingApp.models.MyUser;
@@ -29,7 +32,7 @@ public class HomeService {
         this.userResposistory = userResposistory;
     }
 
-    public String authentication(MyUser user) throws Exception {
+    public String authentication(MyUser user, HttpServletResponse response) throws Exception {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getMobileNumber(), user.getPassword()));
@@ -46,7 +49,17 @@ public class HomeService {
         // .loadUserByUsername(user.getName());
         String jwtToken = jwtUtils.generateToken(new MyClaims(user.getId(), user.getMobileNumber()));
 
-        return jwtToken;
+        // cookies implementation
+        // Instant start = Instant.parse("2017-10-03T10:15:30.00Z");
+        // Instant end = Instant.parse("2017-10-03T10:16:30.00Z");
+        // ResponseCookie cookie = new ResponseCookie();
+        Cookie cookie = new Cookie("Authorization", jwtToken);
+        cookie.setMaxAge(60 * 60 * 24);
+
+        response.addCookie(cookie);
+        // ResponseCookie cookies = new ResponseCookie.ResponseCookieBuilder().build()
+
+        return "COOKIE";
     }
 
     public String addNewUser(MyUser user) {
@@ -77,8 +90,9 @@ public class HomeService {
             throw new IllegalArgumentException("Mobile Number Already Present");
         }
 
-        Long id = userResposistory.save(user).getId();
-        return jwtUtils.generateToken(new MyClaims(id, user.getMobileNumber()));
+        // Long id = userResposistory.save(user).getId();
+        // return jwtUtils.generateToken(new MyClaims(id, user.getMobileNumber()));
+        return "SUCCESS";
     }
 
     private boolean isEmailValid(String email) {
