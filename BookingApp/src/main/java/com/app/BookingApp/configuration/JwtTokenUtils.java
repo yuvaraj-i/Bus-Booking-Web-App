@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import com.app.BookingApp.models.MyClaims;
 
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +52,7 @@ public class JwtTokenUtils {
         claims.put("id", payload.getId());
         claims.put("mobile_number", payload.getMobileNumber());
 
-        return "Bearer " + createToken(claims);
+        return createToken(claims);
     }
 
     private String createToken(HashMap<String, Object> claims) {

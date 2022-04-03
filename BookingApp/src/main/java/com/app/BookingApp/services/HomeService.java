@@ -41,19 +41,20 @@ public class HomeService {
             throw new Exception("Invalid username or password");
         }
 
-        // Optional<MyUser> userData =
+        MyUser userData = userResposistory.findUserByMobileNumber(user.getMobileNumber()).get();
         // userService.getUserByMobileNumber(user.getMobileNumber());
         // Long id = userData.get().getId();
         // String mobileNumber = userData.get().getMobileNumber();
         // UserDetails userDetails = userService
         // .loadUserByUsername(user.getName());
-        String jwtToken = jwtUtils.generateToken(new MyClaims(user.getId(), user.getMobileNumber()));
+        // System.out.println(user.getId());
+        String jwtToken = jwtUtils.generateToken(new MyClaims(userData.getId(), userData.getMobileNumber()));
 
         // cookies implementation
         // Instant start = Instant.parse("2017-10-03T10:15:30.00Z");
         // Instant end = Instant.parse("2017-10-03T10:16:30.00Z");
         // ResponseCookie cookie = new ResponseCookie();
-        Cookie cookie = new Cookie("Authorization", jwtToken);
+        Cookie cookie = new Cookie("Bearer", jwtToken);
         cookie.setMaxAge(60 * 60 * 24);
 
         response.addCookie(cookie);
@@ -90,7 +91,7 @@ public class HomeService {
             throw new IllegalArgumentException("Mobile Number Already Present");
         }
 
-        // Long id = userResposistory.save(user).getId();
+        userResposistory.save(user);
         // return jwtUtils.generateToken(new MyClaims(id, user.getMobileNumber()));
         return "SUCCESS";
     }
