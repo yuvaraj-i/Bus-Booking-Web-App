@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.app.BookingApp.configuration.JwtTokenUtils;
 import com.app.BookingApp.models.MyClaims;
@@ -32,7 +33,7 @@ public class HomeService {
         this.userResposistory = userResposistory;
     }
 
-    public String authentication(MyUser user, HttpServletResponse response) throws Exception {
+    public String authentication(MyUser user, HttpSession session) throws Exception {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getMobileNumber(), user.getPassword()));
@@ -54,13 +55,14 @@ public class HomeService {
         // Instant start = Instant.parse("2017-10-03T10:15:30.00Z");
         // Instant end = Instant.parse("2017-10-03T10:16:30.00Z");
         // ResponseCookie cookie = new ResponseCookie();
-        Cookie cookie = new Cookie("Bearer", jwtToken);
-        cookie.setMaxAge(60 * 60 * 24);
+        // Cookie cookie = new Cookie("Bearer", jwtToken);
+        // cookie.setMaxAge(60 * 60 * 24);
 
-        response.addCookie(cookie);
+        // response.addCookie(cookie);
+        session.setAttribute("Bearer", jwtToken);
         // ResponseCookie cookies = new ResponseCookie.ResponseCookieBuilder().build()
 
-        return "COOKIE";
+        return "OK";
     }
 
     public String addNewUser(MyUser user) {

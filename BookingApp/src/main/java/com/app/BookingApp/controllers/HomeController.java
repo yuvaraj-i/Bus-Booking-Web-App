@@ -1,6 +1,7 @@
 package com.app.BookingApp.controllers;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.app.BookingApp.models.MyUser;
 import com.app.BookingApp.services.HomeService;
@@ -22,8 +23,8 @@ public class HomeController {
     }
 
     @GetMapping("/login")
-    public String createAuthenticationToken(@RequestBody MyUser user, HttpServletResponse response) throws Exception {
-        return homeService.authentication(user, response);
+    public String createAuthenticationToken(@RequestBody MyUser user, HttpSession session) throws Exception {
+        return homeService.authentication(user, session);
 
     }
 
