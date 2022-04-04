@@ -1,19 +1,18 @@
 package com.app.BookingApp.services;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import com.app.BookingApp.configuration.JwtTokenUtils;
+import com.app.BookingApp.configuration.RefreshTokenUtils;
 import com.app.BookingApp.models.MyClaims;
 import com.app.BookingApp.models.MyUser;
 import com.app.BookingApp.reposistory.MyUserResposistory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.server.Cookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -24,16 +23,19 @@ public class HomeService {
     private AuthenticationManager authenticationManager;
     private JwtTokenUtils jwtUtils;
     private MyUserResposistory userResposistory;
+    private RefreshTokenUtils refreshUtils;
 
     @Autowired
-    public HomeService(AuthenticationManager authenticationManager, JwtTokenUtils jwtUtils,
-            MyUserResposistory userResposistory) {
+    public HomeService(AuthenticationManager authenticationManager,
+            JwtTokenUtils jwtUtils, MyUserResposistory userResposistory,
+            RefreshTokenUtils refreshUtils) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.userResposistory = userResposistory;
+        this.refreshUtils = refreshUtils;
     }
 
-    public String authentication(MyUser user, HttpSession session) throws Exception {
+    public ArrayList<String> authentication(MyUser user) throws Exception {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getMobileNumber(), user.getPassword()));
@@ -49,20 +51,27 @@ public class HomeService {
         // UserDetails userDetails = userService
         // .loadUserByUsername(user.getName());
         // System.out.println(user.getId());
-        String jwtToken = jwtUtils.generateToken(new MyClaims(userData.getId(), userData.getMobileNumber()));
+        MyClaims claims = new MyClaims(userData.getId(), userData.getMobileNumber());
+        String jwtToken = jwtUtils.generateToken(claims);
 
+        String refreshToken = refreshUtils.generateRefreshToken(claims);
         // cookies implementation
         // Instant start = Instant.parse("2017-10-03T10:15:30.00Z");
         // Instant end = Instant.parse("2017-10-03T10:16:30.00Z");
-        // ResponseCookie cookie = new ResponseCookie();
-        // Cookie cookie = new Cookie("Bearer", jwtToken);
+        // ResponseCookie cookie = ResponseCookie.from("Bearer", jwtToken).maxAge(60 *
+        // 60 * 24).build();
+        // Cookie cookie = new Cookie();
+        // cookie
         // cookie.setMaxAge(60 * 60 * 24);
 
-        // response.addCookie(cookie);
-        session.setAttribute("Bearer", jwtToken);
+        // response.addHeader("Authorization", cookie.toString());
+        // session.setAttribute("Bearer", jwtToken);
         // ResponseCookie cookies = new ResponseCookie.ResponseCookieBuilder().build()
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("Bearer " + jwtToken);
+        tokens.add(refreshToken);
 
-        return "OK";
+        return tokens;
     }
 
     public String addNewUser(MyUser user) {

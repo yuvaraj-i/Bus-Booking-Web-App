@@ -21,31 +21,43 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class RequestFilter extends OncePerRequestFilter {
 
     private JwtTokenUtils jwtUtils;
+    private RefreshTokenUtils refreshUtils;
     private MyUserService userService;
 
     @Autowired
-    public RequestFilter(JwtTokenUtils jwtUtils, MyUserService userService) {
+    public RequestFilter(JwtTokenUtils jwtUtils, MyUserService userService, RefreshTokenUtils refreshUtils) {
         this.jwtUtils = jwtUtils;
         this.userService = userService;
+        this.refreshUtils = refreshUtils;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filters)
             throws ServletException, IOException {
         String authorizationHeader = request.getHeader("Authorization");
+        String refreshHeader = request.getHeader("Refresh-Token");
+        // request.getCookies();
 
         String mobileNumber = null;
         String jwtToken = null;
+        String refreshToken = null;
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwtToken = authorizationHeader.split(" ")[1];
             mobileNumber = jwtUtils.getUserMobileNumber(jwtToken);
         }
 
+        if (refreshHeader != null){
+            refreshToken = refreshHeader;
+        }
+
         if (mobileNumber != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userData = userService.loadUserByUsername(mobileNumber);
-            // System.out.println(jwtUtils.VerifyToken(jwtToken, userData));
+
+            if (refreshHeader != null & jwtUtils.isTokenExpried(jwtToken) & refreshUtils.verifyToken(refreshToken)){
+                jwtToken = refreshUtils.renewAccessToken(jwtToken);
+            }
 
             if (jwtUtils.VerifyToken(jwtToken, userData)) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
@@ -55,6 +67,11 @@ public class RequestFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
+            else { 
+                // redirect to home page;
+
+            }
+            
         }
 
         filters.doFilter(request, response);

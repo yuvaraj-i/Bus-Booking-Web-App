@@ -15,8 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
-    
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
     private MyUserService userService;
     private RequestFilter requstFilter;
 
@@ -27,15 +27,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
     }
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception{
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userService);
     }
 
     @Override
-	@Bean
-	public AuthenticationManager authenticationManagerBean() throws Exception {
-		return super.authenticationManagerBean();
-	}
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -43,14 +43,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
     }
 
     @Override
-    public void configure(HttpSecurity http) throws Exception{
-        http.csrf().disable()
-				.authorizeRequests().antMatchers("/").permitAll().antMatchers("/signup")
-                .permitAll().antMatchers("/login").permitAll()
-				.anyRequest().authenticated().and()
-				.exceptionHandling().and().sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        
+    public void configure(HttpSecurity http) throws Exception {
+        http.csrf().disable().authorizeRequests()
+                .antMatchers("/").permitAll()
+                .antMatchers("/signup").permitAll()
+                .antMatchers("/login").permitAll()
+                .anyRequest().authenticated().and()
+                .exceptionHandling().and().sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
         http.addFilterBefore(requstFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }

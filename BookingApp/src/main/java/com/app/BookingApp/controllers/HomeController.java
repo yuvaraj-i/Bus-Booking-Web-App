@@ -1,7 +1,6 @@
 package com.app.BookingApp.controllers;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 
 import com.app.BookingApp.models.MyUser;
 import com.app.BookingApp.services.HomeService;
@@ -23,8 +22,8 @@ public class HomeController {
     }
 
     @GetMapping("/login")
-    public String createAuthenticationToken(@RequestBody MyUser user, HttpSession session) throws Exception {
-        return homeService.authentication(user, session);
+    public ArrayList<String> createAuthenticationToken(@RequestBody MyUser user) throws Exception {
+        return homeService.authentication(user);
 
     }
 
@@ -32,5 +31,10 @@ public class HomeController {
     public String createNewUser(@RequestBody MyUser user) {
         return homeService.addNewUser(user);
     }
+
+    // @PostMapping("/auth/renewal")
+    // public String verifyAccessToken(@RequestBody String token){
+    //     return homeService.renewAccessToken(token);
+    // }
 
 }

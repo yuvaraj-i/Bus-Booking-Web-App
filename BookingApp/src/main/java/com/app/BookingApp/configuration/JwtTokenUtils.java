@@ -15,25 +15,34 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Service
 public class JwtTokenUtils {
     // @Value("${key}")
-    private String SECRET_KEY = "yxdrewxfkclkmcdnkcdjbjc";
+    private String SECRET_KEY = "yxdrewxfkcffflkmcdnkcdjbjc";
 
     public String getUserMobileNumber(String token) {
         return (String) getPayload(token).get("mobile_number");
     }
 
-    public boolean VerifyToken(String token, UserDetails user) {
+    public Long getUserId(String token) {
+        return (Long) getPayload(token).get("id");
+    }
 
-        if (!isTokenSigned(token)) {
-            return false;
-        }
+    public boolean isTokenExpried(String token){
         if (getExpriyDate(token).before(new Date())) {
             return false;
         }
+
+        return true;
+    }
+
+    public boolean VerifyToken(String token, UserDetails user) {
+        if (!isTokenSigned(token)) {
+            return false;
+        }
+
         // System.out.println(user.getId() + " " + getUserId(token));
         return user.getUsername().equals(getUserMobileNumber(token));
     }
 
-    public Claims getPayload(String token) {
+    private Claims getPayload(String token) {
         return Jwts.parser()
                 .setSigningKey(SECRET_KEY).parseClaimsJws(token)
                 .getBody();
@@ -43,7 +52,7 @@ public class JwtTokenUtils {
         return getPayload(token).getExpiration();
     }
 
-    private boolean isTokenSigned(String token) {
+    public boolean isTokenSigned(String token) {
         return Jwts.parser().isSigned(token);
     }
 
@@ -56,8 +65,8 @@ public class JwtTokenUtils {
     }
 
     private String createToken(HashMap<String, Object> claims) {
-        return Jwts.builder().addClaims(claims).setHeaderParam("typ", "jwt")
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 1))
+        return Jwts.builder().addClaims(claims).setHeaderParam("typ", "jwt_access_token")
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 5))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
