@@ -6,7 +6,7 @@ import com.app.BookingApp.models.MyUser;
 import com.app.BookingApp.services.HomeService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,7 +21,8 @@ public class HomeController {
         this.homeService = homeService;
     }
 
-    @GetMapping("/login")
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping("/login")
     public ArrayList<String> createAuthenticationToken(@RequestBody MyUser user) throws Exception {
         return homeService.authentication(user);
 

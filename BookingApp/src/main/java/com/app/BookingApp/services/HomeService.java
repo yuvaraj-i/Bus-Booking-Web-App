@@ -12,7 +12,6 @@ import com.app.BookingApp.models.MyUser;
 import com.app.BookingApp.reposistory.MyUserResposistory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.server.Cookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;

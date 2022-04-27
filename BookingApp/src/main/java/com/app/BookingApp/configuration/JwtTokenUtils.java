@@ -14,7 +14,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 @Service
 public class JwtTokenUtils {
-    // @Value("${key}")
+    // @Value("${Access_key}")
     private String SECRET_KEY = "yxdrewxfkcffflkmcdnkcdjbjc";
 
     public String getUserMobileNumber(String token) {
