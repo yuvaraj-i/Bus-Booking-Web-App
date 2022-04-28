@@ -30,12 +30,12 @@ public class MyUserController {
   //   return userService.addNewUser(user);
   // }
 
-  @GetMapping(path = "get/{id}")
+  @GetMapping(path = "/{id}")
   public Optional<MyUser> getUser(@PathVariable("id") Long id) {
     return userService.getUserById(id);
   }
 
-  @GetMapping(path = "home/get/all")
+  @GetMapping(path = "/all")
   public Iterable<MyUser> getAllUsers() {
     return userService.getAllUsers();
   }

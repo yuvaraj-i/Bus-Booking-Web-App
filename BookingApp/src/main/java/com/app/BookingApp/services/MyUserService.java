@@ -5,7 +5,7 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 
 import com.app.BookingApp.models.MyUser;
-import com.app.BookingApp.reposistory.MyUserResposistory;
+import com.app.BookingApp.repository.MyUserRespository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -17,30 +17,30 @@ import org.springframework.stereotype.Service;
 @Service
 public class MyUserService implements UserDetailsService {
 
-    private MyUserResposistory userResposistory;
+    private MyUserRespository userRespository;
 
     @Autowired
-    public MyUserService(MyUserResposistory userResposistory) {
-        this.userResposistory = userResposistory;
+    public MyUserService(MyUserRespository userRespository) {
+        this.userRespository = userRespository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String mobileNumber) throws UsernameNotFoundException {
-        MyUser user = userResposistory.findUserByMobileNumber(mobileNumber).get();
+        MyUser user = userRespository.findUserByMobileNumber(mobileNumber).get();
 
         return new User(user.getMobileNumber(), user.getPassword(), new ArrayList<>());
     }
 
     public Iterable<MyUser> getAllUsers() {
-        return userResposistory.findAll();
+        return userRespository.findAll();
     }
 
     public Optional<MyUser> getUserById(Long id) {
-        return userResposistory.findById(id);
+        return userRespository.findById(id);
     }
 
     public Optional<MyUser> getUserByMobileNumber(String mobileNumber) {
-        return userResposistory.findUserByMobileNumber(mobileNumber);
+        return userRespository.findUserByMobileNumber(mobileNumber);
     }
 
     // public String checkUserLogin(MyUser details) {
@@ -69,18 +69,18 @@ public class MyUserService implements UserDetailsService {
     // }
 
     public void deleteExtistingUser(Long id) {
-        boolean iSUserExist = userResposistory.existsById(id);
+        boolean iSUserExist = userRespository.existsById(id);
 
         if (!iSUserExist) {
             throw new IllegalStateException("user with " + id + " not found!");
         }
 
-        userResposistory.deleteById(id);
+        userRespository.deleteById(id);
     }
 
     @Transactional
     public void updateUser(Long id, String name, String emailAddress) {
-        Optional<MyUser> user = userResposistory.findById(id);
+        Optional<MyUser> user = userRespository.findById(id);
 
         if (!user.isPresent()) {
             throw new IllegalArgumentException("User not found");

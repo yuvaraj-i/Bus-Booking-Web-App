@@ -1,4 +1,4 @@
-package com.app.BookingApp.reposistory;
+package com.app.BookingApp.repository;
 
 import java.util.Optional;
 
@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MyUserResposistory extends CrudRepository<MyUser, Long> {
+public interface MyUserRespository extends CrudRepository<MyUser, Long> {
 
     public Optional<MyUser> findUserByEmailAddress(String emailAddress);
 
