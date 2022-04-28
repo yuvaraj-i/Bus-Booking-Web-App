@@ -2,16 +2,16 @@ package com.app.BookingApp.services;
 
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.app.BookingApp.configuration.JwtTokenUtils;
 import com.app.BookingApp.configuration.RefreshTokenUtils;
 import com.app.BookingApp.models.MyClaims;
 import com.app.BookingApp.models.MyUser;
-import com.app.BookingApp.reposistory.MyUserResposistory;
+import com.app.BookingApp.repository.MyUserRespository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -21,12 +21,12 @@ public class HomeService {
 
     private AuthenticationManager authenticationManager;
     private JwtTokenUtils jwtUtils;
-    private MyUserResposistory userResposistory;
+    private MyUserRespository userResposistory;
     private RefreshTokenUtils refreshUtils;
 
     @Autowired
     public HomeService(AuthenticationManager authenticationManager,
-            JwtTokenUtils jwtUtils, MyUserResposistory userResposistory,
+            JwtTokenUtils jwtUtils, MyUserRespository userResposistory,
             RefreshTokenUtils refreshUtils) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
@@ -34,13 +34,23 @@ public class HomeService {
         this.refreshUtils = refreshUtils;
     }
 
-    public ArrayList<String> authentication(MyUser user) throws Exception {
+    public ResponseEntity<Object> authentication(MyUser user) {
+
+        Optional<MyUser> optionalMobileNumber = userResposistory.findUserByMobileNumber(user.getMobileNumber());
+
+        if(!optionalMobileNumber.isPresent()){
+            return new ResponseEntity<Object>("Invalid mobile number", HttpStatus.UNAUTHORIZED);
+
+        }
+
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getMobileNumber(), user.getPassword()));
 
         } catch (Exception e) {
-            throw new Exception("Invalid username or password");
+            // throw new Exception("Invalid username or password");
+            return new ResponseEntity<Object>("Invalid password", HttpStatus.UNAUTHORIZED);
+             
         }
 
         MyUser userData = userResposistory.findUserByMobileNumber(user.getMobileNumber()).get();
@@ -59,9 +69,10 @@ public class HomeService {
         // Instant end = Instant.parse("2017-10-03T10:16:30.00Z");
         // ResponseCookie cookie = ResponseCookie.from("Bearer", jwtToken).maxAge(60 *
         // 60 * 24).build();
-        // Cookie cookie = new Cookie();
+        // Cookie cookie = new Cookie("Bearer", jwtToken);
         // cookie
         // cookie.setMaxAge(60 * 60 * 24);
+        // response.addCookie(cookie);
 
         // response.addHeader("Authorization", cookie.toString());
         // session.setAttribute("Bearer", jwtToken);
@@ -69,86 +80,28 @@ public class HomeService {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("Bearer " + jwtToken);
         tokens.add(refreshToken);
+        
+        return new ResponseEntity<Object>(tokens, HttpStatus.OK);
 
-        return tokens;
     }
 
-    public String addNewUser(MyUser user) {
+    public ResponseEntity<Object> addNewUser(MyUser user) {
         Optional<MyUser> optionalEmail = userResposistory.findUserByEmailAddress(user.getEmailAddress());
         Optional<MyUser> optionalMobile = userResposistory.findUserByMobileNumber(user.getMobileNumber());
 
-        if (!isNameValid(user.getName().trim())) {
-            throw new IllegalArgumentException("name formate error");
-        }
-
-        if (!isMobileNumberValid(user.getMobileNumber().trim())) {
-            throw new IllegalArgumentException("invalid mobile number");
-        }
-
-        if (!isEmailValid(user.getEmailAddress().trim())) {
-            throw new IllegalArgumentException("invalid Email number");
-        }
-
-        if (!isValidPassword(user.getPassword().trim())) {
-            throw new IllegalArgumentException("invalid password number");
-        }
-
         if (optionalEmail.isPresent()) {
-            throw new IllegalArgumentException("Email Already Present");
+            return new ResponseEntity<Object>("Email Already Present", HttpStatus.CONFLICT);
         }
 
         if (optionalMobile.isPresent()) {
-            throw new IllegalArgumentException("Mobile Number Already Present");
+            return new ResponseEntity<Object>("Mobile Number Already Present", HttpStatus.CONFLICT);
+            
         }
 
         userResposistory.save(user);
-        // return jwtUtils.generateToken(new MyClaims(id, user.getMobileNumber()));
-        return "SUCCESS";
-    }
 
-    private boolean isEmailValid(String email) {
-        // System.out.println("im email");
-        if (email == null) {
-            return false;
-        }
+        return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
 
-        // String regex = "^(.+)@(.+)$";
-        // Pattern pattern = Pattern.compile(regex);
-        // Matcher matcher = pattern.matcher(email);
-        return true;
-
-    }
-
-    private boolean isMobileNumberValid(String number) {
-        // System.out.println("im mobile");
-        if (number == null) {
-            return false;
-        }
-
-        String regex = "^\\d{10}$";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(number);
-        return matcher.matches();
-    }
-
-    private boolean isNameValid(String name) {
-        // System.out.println("im name check");
-        if (name == null) {
-            return false;
-        }
-        // String regex = "\\d";
-        // Pattern pattern = Pattern.compile(regex);
-        // Matcher matcher = pattern.matcher(name);
-        // return matcher.matches();
-        return (name.length() > 0) && (name.length() <= 30);
-    }
-
-    private boolean isValidPassword(String password) {
-        // System.out.println("im password check");
-        if (password == null) {
-            return false;
-        }
-        return password.length() > 8;
     }
 
 }
