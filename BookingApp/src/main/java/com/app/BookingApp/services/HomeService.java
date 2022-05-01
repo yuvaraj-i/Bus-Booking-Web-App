@@ -48,36 +48,16 @@ public class HomeService {
                     new UsernamePasswordAuthenticationToken(user.getMobileNumber(), user.getPassword()));
 
         } catch (Exception e) {
-            // throw new Exception("Invalid username or password");
             return new ResponseEntity<Object>("Invalid password", HttpStatus.UNAUTHORIZED);
              
         }
 
         MyUser userData = userResposistory.findUserByMobileNumber(user.getMobileNumber()).get();
-        // userService.getUserByMobileNumber(user.getMobileNumber());
-        // Long id = userData.get().getId();
-        // String mobileNumber = userData.get().getMobileNumber();
-        // UserDetails userDetails = userService
-        // .loadUserByUsername(user.getName());
-        // System.out.println(user.getId());
         MyClaims claims = new MyClaims(userData.getId(), userData.getMobileNumber());
         String jwtToken = jwtUtils.generateToken(claims);
-
         String refreshToken = refreshUtils.generateRefreshToken(claims);
-        // cookies implementation
-        // Instant start = Instant.parse("2017-10-03T10:15:30.00Z");
-        // Instant end = Instant.parse("2017-10-03T10:16:30.00Z");
-        // ResponseCookie cookie = ResponseCookie.from("Bearer", jwtToken).maxAge(60 *
-        // 60 * 24).build();
-        // Cookie cookie = new Cookie("Bearer", jwtToken);
-        // cookie
-        // cookie.setMaxAge(60 * 60 * 24);
-        // response.addCookie(cookie);
-
-        // response.addHeader("Authorization", cookie.toString());
-        // session.setAttribute("Bearer", jwtToken);
-        // ResponseCookie cookies = new ResponseCookie.ResponseCookieBuilder().build()
         ArrayList<String> tokens = new ArrayList<>();
+        
         tokens.add("Bearer " + jwtToken);
         tokens.add(refreshToken);
         
@@ -102,6 +82,10 @@ public class HomeService {
 
         return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
 
+    }
+
+    public String renewAccessToken(String token) {
+        return null;
     }
 
 }

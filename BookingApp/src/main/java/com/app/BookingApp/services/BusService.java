@@ -1,11 +1,11 @@
 package com.app.BookingApp.services;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import com.app.BookingApp.models.Bus;
 import com.app.BookingApp.models.Location;
@@ -27,80 +27,51 @@ public class BusService {
     private SeatRepository seatRepository;
 
     @Autowired
-    public BusService(BusRespository busRespository, LocationRepository locationRepository, SeatRepository seatRepository) {
+    public BusService(BusRespository busRespository, LocationRepository locationRepository,
+            SeatRepository seatRepository) {
         this.busRespository = busRespository;
         this.locationRepository = locationRepository;
         this.seatRepository = seatRepository;
     }
 
-    public Bus getBusDetails(Long id) {
-        /*
-        Optional<Bus> optionalBusDetails =
-        bookingResposistory.findAllBusBystartPlaceAndendPlace(
-        details.getStartPlace(), details.getEndPlace());
+    public ResponseEntity<Object> getBusDetails(Long id) {
 
-        if(!optionalBusDetails.isPresent()){
-        // "return no buses avaliable";
+        Optional<Bus> optionalBus = busRespository.findById(id);
+
+        if (!optionalBus.isPresent()) {
+            return new ResponseEntity<Object>("no such bus found", HttpStatus.CREATED);
         }
 
-        Iterable<Bus> allBueses = optionalBusDetails.get();
-        */
-        Bus bus = busRespository.findById(id).get();
-
-        return bus;
+        return new ResponseEntity<Object>(optionalBus, HttpStatus.OK);
     }
 
     public ResponseEntity<Object> addBusDetails(Iterable<Bus> busDatas) {
-        /*
-        Location location = new Location();
-        location.setPlace("coimbatore");
-        ArrayList<Long> locations = new ArrayList<>();
 
-        Long locationId = locationRepository.save(location).getId();
-        locations.add(locationId);
+        Iterator<Bus> iterator = busRespository.saveAll(busDatas).iterator();
 
-        ArrayList<Long> seats = new ArrayList<>();
-
-        for (int i = 0; i <= 4; i++){
-            Seat seat = new Seat();
-            seat.setSeatNo(i);
-            Long id = seatRepository.save(seat).getId();
-            seats.add(id);
+        while (iterator.hasNext()) {
+            Bus bus = iterator.next();
+            int numberOfSeates = bus.getNumberOfSeats();
+            for (int i = 1; i <= numberOfSeates; i++) {
+                Seat s = new Seat();
+                s.setBus(bus);
+                s.setSeatNo(i);
+                seatRepository.save(s);
+            }
         }
 
-        Bus bus = new Bus();
-        bus.setName("orange travels");
-        bus.setNumberOfSeats(35);
-        bus.setType("sleeper");
-        bus.setSeatsId(seats);
-        bus.setStartPlacesId(seats);
-        bus.setEndPlacesId(locations);
-        
-        busRespository.save(bus);
-        Iterable<Bus> allBuses = busRespository.findAll();
-
-        Optional<Location> loca = locationRepository.findByPlace("coimbatore");
-        
-        if(!loca.isPresent()){
-            return new ResponseEntity<Object>("No loc found", HttpStatus.OK);
-            
-        }
-        Long val = loca.get().getId();
-        Iterable<Bus> busVal = busRespository.findAllByStartPlacesId(val);
-        */
-
-        return new ResponseEntity<Object>("", HttpStatus.OK);
+        return new ResponseEntity<Object>("SUCCESS", HttpStatus.CREATED);
     }
 
     public ResponseEntity<Object> getAllLocations() {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
         Iterable<Location> locations = locationRepository.findAll();
         Long numberOfLocations = locationRepository.count();
 
-        map.put("count", numberOfLocations);
-        map.put("results", locations);
+        response.put("count", numberOfLocations);
+        response.put("results", locations);
 
-        return new ResponseEntity<Object>(map, HttpStatus.OK);
+        return new ResponseEntity<Object>(response, HttpStatus.OK);
 
     }
 
@@ -112,11 +83,61 @@ public class BusService {
             Optional<Location> optionalLocation = locationRepository.findByLocation(location);
 
             if (!optionalLocation.isPresent()) {
-                locationRepository.save(new Location(location));
+                locationRepository.save(new Location(location.toLowerCase()));
             }
         }
 
         return new ResponseEntity<Object>("SUCCESS", HttpStatus.CREATED);
+
+    }
+
+    public ResponseEntity<Object> findAvaliableSeats(Long busId) {
+
+        Optional<Bus> optionalBus = busRespository.findById(busId);
+
+        if (!optionalBus.isPresent()) {
+            return new ResponseEntity<Object>("no such bus found", HttpStatus.OK);
+        }
+
+        Map<String, Object> seatResponse = new HashMap<>();
+        Map<Integer, Boolean> seatsStatus = new HashMap<>();
+        Iterable<Seat> avaliableSeats = seatRepository.findByBusId(busId);
+        Iterator<Seat> iterator = avaliableSeats.iterator();
+        int avaliableSeatsCounts = 0;
+
+        while (iterator.hasNext()) {
+            Seat seat = iterator.next();
+
+            if (seat.isIsAvaliable()) {
+                avaliableSeatsCounts += 1;
+            }
+
+            seatsStatus.put(seat.getSeatNo(), seat.isIsAvaliable());
+        }
+
+        seatResponse.put("total seats avaliable", avaliableSeatsCounts);
+        seatResponse.put("results", seatsStatus);
+
+        return new ResponseEntity<Object>(seatResponse, HttpStatus.OK);
+
+    }
+
+    public ResponseEntity<Object> findBusesByLocation(String boardingLocation, String destinationLocation) {
+        Optional<Location> optionalBoardingLocation = locationRepository.findByLocation(boardingLocation);
+        Optional<Location> optionalDestinationLocation = locationRepository.findByLocation(destinationLocation);
+
+        if ((!optionalBoardingLocation.isPresent()) && (!optionalDestinationLocation.isPresent())) {
+            return new ResponseEntity<Object>("no services avaliable", HttpStatus.BAD_REQUEST);
+
+        }
+
+        Set<Bus> avaliableBusesStartLocation = busRespository.findAllByStartLocation(boardingLocation);
+        Set<Bus> avaliableBusesEndLocation = busRespository.findAllByEndLocation(destinationLocation);
+
+        Set<Bus> intersectionBuses = new HashSet<>(avaliableBusesStartLocation);
+        intersectionBuses.retainAll(avaliableBusesEndLocation);
+
+        return new ResponseEntity<Object>(intersectionBuses, HttpStatus.OK);
 
     }
 

@@ -1,6 +1,6 @@
 package com.app.BookingApp.repository;
 
-import java.util.Optional;
+import java.util.Set;
 
 import com.app.BookingApp.models.Bus;
 
@@ -10,10 +10,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BusRespository extends CrudRepository<Bus, Long>{
-    
-    // public Optional<Bus> findAllUserBystartPlacAndendPlace(String startPlace, String endPlace);
 
-    // public Optional<Bus> findBus
-
+    public Set<Bus> findAllByStartLocation(String boardingLocation);
+    public Set<Bus> findAllByEndLocation(String destinationLocation);
     
 }

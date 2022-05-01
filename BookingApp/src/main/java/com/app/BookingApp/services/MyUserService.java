@@ -43,31 +43,6 @@ public class MyUserService implements UserDetailsService {
         return userRespository.findUserByMobileNumber(mobileNumber);
     }
 
-    // public String checkUserLogin(MyUser details) {
-    // if (details.getMobileNumber() == null || details.getMobileNumber() == null) {
-    // throw new IllegalArgumentException("no input found");
-    // }
-    // Optional<MyUser> user =
-    // userResposistory.findUserByMobileNumber(details.getMobileNumber());
-
-    // if (!user.isPresent()) {
-    // throw new IllegalArgumentException("User Not found");
-    // }
-
-    // String userPassword =
-    // userResposistory.findUserByMobileNumber(details.getMobileNumber()).get().getPassword();
-
-    // if (!userPassword.equals(details.getPassword())) {
-    // throw new IllegalArgumentException("Worng password");
-    // }
-
-    // Long id =
-    // userResposistory.findUserByMobileNumber(details.getMobileNumber()).get().getId();
-
-    // return jawt.generateToken(new MyClaims(id, details.getMobileNumber()));
-
-    // }
-
     public void deleteExtistingUser(Long id) {
         boolean iSUserExist = userRespository.existsById(id);
 

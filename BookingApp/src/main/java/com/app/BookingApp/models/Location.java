@@ -12,21 +12,28 @@ public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String place;
+    private String location;
+
+    public Location() {}
+
+    public Location(String location) {
+        this.location = location;
+    }
 
     public Long getId() {
         return this.id;
     }
 
-    public String getPlace() {
-        return this.place;
+    public String getLocation() {
+        return this.location;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setPlace(String place) {
-        this.place = place;
+    public void setLocation(String location) {
+        this.location = location;
     }
+
 }
