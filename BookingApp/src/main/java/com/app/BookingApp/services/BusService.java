@@ -92,16 +92,17 @@ public class BusService {
     }
 
     public ResponseEntity<Object> findAvaliableSeats(Long busId) {
-
         Optional<Bus> optionalBus = busRespository.findById(busId);
 
         if (!optionalBus.isPresent()) {
             return new ResponseEntity<Object>("no such bus found", HttpStatus.OK);
         }
+        
+        Iterable<Seat> avaliableSeats = seatRepository.findByBusId(busId);
+        int totalBusSeats = optionalBus.get().getNumberOfSeats();
 
         Map<String, Object> seatResponse = new HashMap<>();
         Map<Integer, Boolean> seatsStatus = new HashMap<>();
-        Iterable<Seat> avaliableSeats = seatRepository.findByBusId(busId);
         Iterator<Seat> iterator = avaliableSeats.iterator();
         int avaliableSeatsCounts = 0;
 
@@ -115,7 +116,9 @@ public class BusService {
             seatsStatus.put(seat.getSeatNo(), seat.isIsAvaliable());
         }
 
-        seatResponse.put("total seats avaliable", avaliableSeatsCounts);
+        seatResponse.put("busId", busId);
+        seatResponse.put("totalBusSeats", totalBusSeats);
+        seatResponse.put("seatAvaliable", avaliableSeatsCounts);
         seatResponse.put("results", seatsStatus);
 
         return new ResponseEntity<Object>(seatResponse, HttpStatus.OK);
@@ -131,14 +134,29 @@ public class BusService {
 
         }
 
-        Set<Bus> avaliableBusesStartLocation = busRespository.findAllByStartLocation(boardingLocation);
-        Set<Bus> avaliableBusesEndLocation = busRespository.findAllByEndLocation(destinationLocation);
+        Set<Bus> busesByStartLocation = busRespository.findAllByStartLocation(boardingLocation);
+        Set<Bus> busesByEndLocation = busRespository.findAllByEndLocation(destinationLocation);
 
-        Set<Bus> intersectionBuses = new HashSet<>(avaliableBusesStartLocation);
-        intersectionBuses.retainAll(avaliableBusesEndLocation);
+        Set<Bus> busesList = findCommonBuses(busesByStartLocation, busesByEndLocation);
+        
+        if(busesList.isEmpty()){
+            return new ResponseEntity<Object>("no bus avaliable", HttpStatus.OK);
+        }
+        
+        Map<String, Object> busResponse = new HashMap<>();
 
-        return new ResponseEntity<Object>(intersectionBuses, HttpStatus.OK);
+        busResponse.put("counts", busesList.size());
+        busResponse.put("results", busesList);
 
+        return new ResponseEntity<Object>(busResponse, HttpStatus.OK);
+
+    }
+
+    private Set<Bus> findCommonBuses(Set<Bus> busesByStartLocation, Set<Bus> busesByEndLocation) {
+        Set<Bus> intersectionBuses = new HashSet<>(busesByStartLocation);
+        intersectionBuses.retainAll(busesByEndLocation);
+
+        return intersectionBuses;
     }
 
 }

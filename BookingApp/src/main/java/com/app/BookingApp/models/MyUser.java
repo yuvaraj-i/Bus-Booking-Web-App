@@ -59,15 +59,14 @@ public class MyUser {
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+        this.setAge(dateOfBirth);
     }
 
     public int getAge() {
         return this.age;
     }
 
-    public void setAge(int age) {
-        this.age = age;
-    }
+    public void setAge(int age) { }
 
     public String getPassword() {
         return this.password;
@@ -75,6 +74,11 @@ public class MyUser {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    private void setAge(LocalDate age) {
+        LocalDate currentDate = LocalDate.now();
+        this.age = currentDate.getYear() - age.getYear();
     }
 
 }

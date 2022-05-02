@@ -1,7 +1,6 @@
 package com.app.BookingApp.controllers;
 
 import com.app.BookingApp.models.Bus;
-import com.app.BookingApp.models.Location;
 import com.app.BookingApp.services.BusService;
 
 import org.springframework.beans.factory.annotation.Autowired;
