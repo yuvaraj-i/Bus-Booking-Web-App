@@ -6,8 +6,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
 @Table
+@Getter
+@Setter
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -17,22 +22,6 @@ public class Location {
     public Location() {}
 
     public Location(String location) {
-        this.location = location;
-    }
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public String getLocation() {
-        return this.location;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setLocation(String location) {
         this.location = location;
     }
 

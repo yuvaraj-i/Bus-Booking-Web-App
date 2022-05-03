@@ -1,6 +1,5 @@
 package com.app.BookingApp.models;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -9,8 +8,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
 @Table
+@Getter
+@Setter
 public class Seat {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -21,41 +25,4 @@ public class Seat {
     private int SeatNo;
     private Boolean isAvaliable = true;
 
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Bus getBus() {
-        return this.bus;
-    }
-
-    public void setBus(Bus bus) {
-        this.bus = bus;
-    }
-
-    public int getSeatNo() {
-        return this.SeatNo;
-    }
-
-    public void setSeatNo(int SeatNo) {
-        this.SeatNo = SeatNo;
-    }
-
-    public Boolean isIsAvaliable() {
-        return this.isAvaliable;
-    }
-
-    public Boolean getIsAvaliable() {
-        return this.isAvaliable;
-    }
-
-    public void setIsAvaliable(Boolean isAvaliable) {
-        this.isAvaliable = isAvaliable;
-    }
-
-    
 }
