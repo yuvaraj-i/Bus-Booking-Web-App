@@ -46,7 +46,7 @@ public class BusService {
     }
 
     public ResponseEntity<Object> addBusDetails(Iterable<Bus> busDatas) {
-
+        
         Iterator<Bus> iterator = busRespository.saveAll(busDatas).iterator();
 
         while (iterator.hasNext()) {
@@ -109,11 +109,11 @@ public class BusService {
         while (iterator.hasNext()) {
             Seat seat = iterator.next();
 
-            if (seat.isIsAvaliable()) {
+            if (seat.getIsAvaliable()) {
                 avaliableSeatsCounts += 1;
             }
 
-            seatsStatus.put(seat.getSeatNo(), seat.isIsAvaliable());
+            seatsStatus.put(seat.getSeatNo(), seat.getIsAvaliable());
         }
 
         seatResponse.put("busId", busId);
@@ -157,6 +157,16 @@ public class BusService {
         intersectionBuses.retainAll(busesByEndLocation);
 
         return intersectionBuses;
+    }
+
+
+    public int calculateBusCharges(Bus bus){
+        
+        // int hourCharge = [150, 200, 100, 130, 160];
+
+        int bookingCharges = bus.getEndTime().compareTo(bus.getStartTime()); //* hourCharge;
+
+        return 800;
     }
 
 }

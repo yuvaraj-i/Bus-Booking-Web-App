@@ -25,12 +25,6 @@ public class BusController {
         this.busService = busService;
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<Object> searchBuses(@RequestParam("from") String boardingLocation,
-            @RequestParam("to") String destinationLocation) {
-        return busService.findBusesByLocation(boardingLocation, destinationLocation);
-    }
-
     @PostMapping("/add")
     public ResponseEntity<Object> addNewBus(@RequestBody Iterable<Bus> busDatas) {
         return busService.addBusDetails(busDatas);
@@ -54,6 +48,12 @@ public class BusController {
     @GetMapping("seats/test/{busId}")
     public ResponseEntity<Object> test(@PathVariable("busId") Long busId) {
         return busService.findAvaliableSeats(busId);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Object> searchBuses(@RequestParam("from") String boardingLocation,
+            @RequestParam("to") String destinationLocation) {
+        return busService.findBusesByLocation(boardingLocation, destinationLocation);
     }
 
 }

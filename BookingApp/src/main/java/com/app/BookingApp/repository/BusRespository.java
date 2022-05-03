@@ -13,5 +13,9 @@ public interface BusRespository extends CrudRepository<Bus, Long>{
 
     public Set<Bus> findAllByStartLocation(String boardingLocation);
     public Set<Bus> findAllByEndLocation(String destinationLocation);
+
+    // @Query("SELECT u FROM Bus u WHERE u.boardingLocation = :sLocation and u.destinationLocation = :eLocation")
+    // public Set<Bus> findAllBusByBAndD(@Param("sLocation") String b, @Param("eLocation") String d);
+
     
 }
