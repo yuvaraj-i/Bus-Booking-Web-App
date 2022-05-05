@@ -1,0 +1,50 @@
+
+GET http://localhost:8080/sigup/get/all
+
+###
+
+GET http://localhost:8080/sigup/get/1
+
+###
+
+POST http://localhost:8080/sigup
+Content-Type: application/json
+
+{
+    "name": "ajay",
+    "mobileNumber": "8220931510",
+    "emailAddress": "ajay@gmail.com",
+    "dateOfBirth": "2000-05-19",
+    "password": "password1"
+}
+
+###
+
+POST http://localhost:8080/sigup/
+Content-Type: application/json
+
+{
+    "name": "raj",
+    "mobileNumber": "9876543210",
+    "emailAddress": "raj@gmail.com",
+    "dateOfBirth": "1990-02-15",
+    "password": "password2"
+}
+
+###
+
+DELETE http://localhost:8080/user/1
+
+###
+
+PUT http://localhost:8080/home/1?name="raj"
+
+###
+
+POST http://localhost:8080/user/verify
+Content-Type: application/json
+
+{
+    "mobileNumber": "8220931510",
+    "password": "password1"
+}
