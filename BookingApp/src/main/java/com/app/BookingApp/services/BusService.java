@@ -1,5 +1,6 @@
 package com.app.BookingApp.services;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -134,12 +135,9 @@ public class BusService {
 
         }
 
-        Set<Bus> busesByStartLocation = busRespository.findAllByStartLocation(boardingLocation);
-        Set<Bus> busesByEndLocation = busRespository.findAllByEndLocation(destinationLocation);
-
-        Set<Bus> busesList = findCommonBuses(busesByStartLocation, busesByEndLocation);
+        ArrayList<Bus> busesList = busRespository.findAllBusByBoardingAndDestination(boardingLocation, destinationLocation);
         
-        if(busesList.isEmpty()){
+        if(busesList.size() == 0){
             return new ResponseEntity<Object>("no bus avaliable", HttpStatus.OK);
         }
         
@@ -151,14 +149,6 @@ public class BusService {
         return new ResponseEntity<Object>(busResponse, HttpStatus.OK);
 
     }
-
-    private Set<Bus> findCommonBuses(Set<Bus> busesByStartLocation, Set<Bus> busesByEndLocation) {
-        Set<Bus> intersectionBuses = new HashSet<>(busesByStartLocation);
-        intersectionBuses.retainAll(busesByEndLocation);
-
-        return intersectionBuses;
-    }
-
 
     public int calculateBusCharges(Bus bus){
         

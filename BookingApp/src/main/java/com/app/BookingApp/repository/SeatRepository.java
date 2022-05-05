@@ -1,9 +1,5 @@
 package com.app.BookingApp.repository;
 
-import java.util.List;
-import java.util.Optional;
-
-import com.app.BookingApp.models.Bus;
 import com.app.BookingApp.models.Seat;
 
 import org.springframework.data.repository.CrudRepository;

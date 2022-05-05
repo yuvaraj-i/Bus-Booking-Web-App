@@ -45,11 +45,7 @@ public class BookingService {
         this.seatRepository = seatRepository;
     }
 
-    public ResponseEntity<Object> bookTicketForUser(UserBookingDetailsRequest userBookingDetails, Long busId) {
-        System.out.println(userBookingDetails.getUserName());
-
-        System.out.println(busId);
-        
+    public ResponseEntity<Object> bookTicketForUser(UserBookingDetailsRequest userBookingDetails, Long busId) {        
         String userEmail = userBookingDetails.getEmail();
         List<Passenger> listPassengers = userBookingDetails.getPassengers();
 
@@ -62,7 +58,7 @@ public class BookingService {
         }
 
         if (userBookingDetails.getSeatNumbers().size() == 0) {
-            return new ResponseEntity<Object>("seats no selected", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>("seats not selected", HttpStatus.BAD_REQUEST);
         }
 
         MyUser user = optionalUser.get();
@@ -71,13 +67,12 @@ public class BookingService {
         setAvaliabilty(busId, userBookingDetails.getSeatNumbers());
 
         int bookingCharges = busService.calculateBusCharges(bus);
-
         Ticket ticket = new Ticket();
+        
         ticket.setBus(bus);
         ticket.setPassenger(listPassengers);
         ticket.setSeatNumbers(userBookingDetails.getSeatNumbers());
         ticket.setBusCharges(bookingCharges);
-
         Ticket ticketSave = ticketReposistory.save(ticket);
 
         Orders userOrders = new Orders();
@@ -91,16 +86,16 @@ public class BookingService {
 
     private void setAvaliabilty(Long busId, ArrayList<Integer> seatNumbersList) {
         Iterable<Seat> busSeatsCollections = seatRepository.findByBusId(busId);
-
         Iterator<Seat> seatIterator = busSeatsCollections.iterator();
 
         while (seatIterator.hasNext()) {
             Seat busSeat = seatIterator.next();
 
-            for (int seatNumber = 0; seatNumber < seatNumbersList.size(); seatNumber++){
-                if(busSeat.getSeatNo() == seatNumbersList.get(seatNumber)){
+            for (int index = 0; index < seatNumbersList.size(); index++){
+                if(busSeat.getSeatNo() == seatNumbersList.get(index)){
                     busSeat.setIsAvaliable(false);
                     seatRepository.save(busSeat);
+                    break;
                 }
             }
 
