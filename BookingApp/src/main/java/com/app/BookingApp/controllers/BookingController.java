@@ -5,6 +5,7 @@ import com.app.BookingApp.services.BookingService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +26,11 @@ public class BookingController {
     @PostMapping("/bus/ticket/{busId}")
     public ResponseEntity<Object> bookTicket(@PathVariable("busId") Long busId, @RequestBody UserBookingDetailsRequest userBookingDetails){
         return bookingService.bookTicketForUser(userBookingDetails, busId);
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<Object> userBookingHistory(@PathVariable("userId") Long userId) {
+        return bookingService.getUserBookingDetils(userId);
     }
 
 }

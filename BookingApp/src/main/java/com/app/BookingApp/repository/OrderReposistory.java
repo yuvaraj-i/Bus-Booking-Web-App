@@ -7,5 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrderReposistory extends CrudRepository<Orders, Long>{
+
+    Iterable<Orders> findAllByUserId(Long userId);
     
 }

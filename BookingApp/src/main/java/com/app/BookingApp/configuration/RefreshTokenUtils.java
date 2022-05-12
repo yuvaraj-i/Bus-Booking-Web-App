@@ -2,8 +2,11 @@ package com.app.BookingApp.configuration;
 
 import java.sql.Date;
 import java.util.HashMap;
+import java.util.Optional;
 
 import com.app.BookingApp.models.MyClaims;
+import com.app.BookingApp.models.MyUser;
+import com.app.BookingApp.services.MyUserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,10 +18,12 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class RefreshTokenUtils {
 
     private JwtTokenUtils jwtUtils;
+    private MyUserService userService;
 
     @Autowired
-    public RefreshTokenUtils(JwtTokenUtils jwtUtils) {
+    public RefreshTokenUtils(JwtTokenUtils jwtUtils, MyUserService userService) {
         this.jwtUtils = jwtUtils;
+        this.userService = userService;
     }
 
     private String SECRET_KEY = "ggygdupwhdpowndjbskhcvhgwvcjhbwjhckvcqh";
@@ -37,18 +42,24 @@ public class RefreshTokenUtils {
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
-    public boolean verifyToken(String refreshToken){
-        if (storedToken.equals(refreshToken)){
+    public boolean verifyToken(String refreshToken) {
+        if (storedToken.equals(refreshToken)) {
             return true;
         }
 
         return false;
     }
 
-    public String renewAccessToken(String refreshToken) {
-        MyClaims payload = jwtUtils.getClamisFromExpriedToken(refreshToken);
+    public String renewAccessToken(String jwtToken) {
+        String mobileNumber = jwtUtils.getClamisFromExpriedToken(jwtToken);
+        Optional<MyUser> optionalUser = userService.getUserByMobileNumber(mobileNumber);
 
-        return jwtUtils.generateToken(payload);
+        if (!optionalUser.isPresent()) {
+            return jwtToken;
+        }
+
+        MyClaims newPayload = new MyClaims(mobileNumber);
+        return jwtUtils.generateToken(newPayload);
     }
 
 }

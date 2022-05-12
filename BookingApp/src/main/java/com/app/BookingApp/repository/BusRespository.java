@@ -1,6 +1,7 @@
 package com.app.BookingApp.repository;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Set;
 
 import com.app.BookingApp.models.Bus;
@@ -20,5 +21,7 @@ public interface BusRespository extends CrudRepository<Bus, Long> {
     @Query("FROM Bus WHERE startLocation = :sLocation and endLocation = :eLocation")
     public ArrayList<Bus> findAllBusByBoardingAndDestination(@Param("sLocation") String boardingLocation,
             @Param("eLocation") String destinationLocation);
+
+    public Optional<Bus> findBynumberPlateDeatails(String numberPlateDeatails);
 
 }

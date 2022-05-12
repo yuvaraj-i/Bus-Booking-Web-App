@@ -44,7 +44,7 @@ public class JwtTokenUtils {
     }
 
     public boolean VerifyToken(String token, UserDetails user) {
-        if (!isTokenSigned(token)) {
+        if (!isTokenSigned(token) && isTokenExpried(token)) {
             return false;
         }
 
@@ -75,7 +75,7 @@ public class JwtTokenUtils {
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
-    public MyClaims getClamisFromExpriedToken(String jwtToken) {
+    public String getClamisFromExpriedToken(String jwtToken) {
 
         Claims payload = null;
 
@@ -89,9 +89,7 @@ public class JwtTokenUtils {
 
         String mobileNumber = (String) payload.get("mobile_number");
 
-        MyClaims newPayload = new MyClaims(mobileNumber);
-
-        return newPayload;
+        return mobileNumber;
 
     }
 

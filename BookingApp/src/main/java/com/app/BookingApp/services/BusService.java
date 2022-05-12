@@ -46,20 +46,27 @@ public class BusService {
 
     public ResponseEntity<Object> addBusDetails(Iterable<Bus> busDatas) {
 
-        Iterator<Bus> iterator = busRespository.saveAll(busDatas).iterator();
+        Iterator<Bus> busDatasIterator = busDatas.iterator();
 
-        while (iterator.hasNext()) {
-            Bus bus = iterator.next();
-            int numberOfSeates = bus.getNumberOfSeats();
-            for (int i = 1; i <= numberOfSeates; i++) {
-                Seat s = new Seat();
-                s.setBus(bus);
-                s.setSeatNo(i);
-                seatRepository.save(s);
+        while (busDatasIterator.hasNext()) {
+            Bus busDetails = busDatasIterator.next();
+
+            Optional<Bus> extistingBusOptional = busRespository
+                    .findBynumberPlateDeatails(busDetails.getNumberPlateDeatails());
+
+            if (!extistingBusOptional.isPresent()) {
+                Bus savedBus = busRespository.save(busDetails);
+                int numberOfSeates = busDetails.getNumberOfSeats();
+                for (int i = 1; i <= numberOfSeates; i++) {
+                    Seat s = new Seat();
+                    s.setBus(savedBus);
+                    s.setSeatNo(i);
+                    seatRepository.save(s);
+                }
             }
         }
 
-        return new ResponseEntity<Object>(busDatas, HttpStatus.CREATED);
+        return new ResponseEntity<Object>("SUCCESS", HttpStatus.CREATED);
     }
 
     public ResponseEntity<Object> getAllLocations() {
@@ -158,8 +165,8 @@ public class BusService {
     }
 
     public int calculateBusCharges(Bus bus, int numberOfSeats) {
-
         int seatPrice = bus.getSeatPrice();
+
         return numberOfSeats * seatPrice;
     }
 

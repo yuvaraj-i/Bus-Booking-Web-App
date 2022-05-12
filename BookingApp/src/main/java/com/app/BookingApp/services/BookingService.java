@@ -114,4 +114,27 @@ public class BookingService {
 
     }
 
+    public ResponseEntity<Object> getUserBookingDetils(Long userId) {
+        List<BookingResponse> userTickets = new ArrayList<>();
+        Iterable<Orders> usersBookings = orderReposistory.findAllByUserId(userId);
+        Iterator<Orders> usersBookingsIterator = usersBookings.iterator();
+        int count = 0;
+
+        while (usersBookingsIterator.hasNext()) {
+            count += 1;
+
+            Orders userOrder = usersBookingsIterator.next();
+
+            Ticket busTicket = userOrder.getTicket();
+
+            // busTicket
+
+            // ticketDetails
+        }
+        
+
+        return new ResponseEntity<Object>(usersBookings, HttpStatus.OK);
+
+    }
+
 }
