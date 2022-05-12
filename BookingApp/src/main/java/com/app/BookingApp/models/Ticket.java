@@ -1,5 +1,6 @@
 package com.app.BookingApp.models;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,5 +31,6 @@ public class Ticket {
     private Bus bus;
     private int busCharges;
     private ArrayList<Integer> seatNumbers;
+    private LocalDate bookedDate;
 
 }

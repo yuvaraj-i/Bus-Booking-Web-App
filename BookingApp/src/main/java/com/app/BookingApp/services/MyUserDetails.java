@@ -7,9 +7,7 @@ import java.util.List;
 
 import com.app.BookingApp.models.MyUser;
 import com.app.BookingApp.models.Roles;
-import com.app.BookingApp.repository.RolesRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
