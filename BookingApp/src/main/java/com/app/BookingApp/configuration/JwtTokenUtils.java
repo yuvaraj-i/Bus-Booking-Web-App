@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -25,12 +26,21 @@ public class JwtTokenUtils {
         return (Long) getPayload(token).get("id");
     }
 
-    public boolean isTokenExpried(String token){
-        if (getExpriyDate(token).before(new Date())) {
+    public boolean isTokenExpried(String jwtToken) {
+        if(jwtToken == null){
+            return true;
+        }
+        
+        try {
+
+            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(jwtToken);
             return false;
         }
 
-        return true;
+        catch (ExpiredJwtException e) {
+            return true;
+        }
+
     }
 
     public boolean VerifyToken(String token, UserDetails user) {
@@ -48,17 +58,12 @@ public class JwtTokenUtils {
                 .getBody();
     }
 
-    private Date getExpriyDate(String token) {
-        return getPayload(token).getExpiration();
-    }
-
     public boolean isTokenSigned(String token) {
         return Jwts.parser().isSigned(token);
     }
 
     public String generateToken(MyClaims payload) {
         HashMap<String, Object> claims = new HashMap<>();
-        claims.put("id", payload.getId());
         claims.put("mobile_number", payload.getMobileNumber());
 
         return createToken(claims);
@@ -68,6 +73,26 @@ public class JwtTokenUtils {
         return Jwts.builder().addClaims(claims).setHeaderParam("typ", "jwt_access_token")
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 5))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+    }
+
+    public MyClaims getClamisFromExpriedToken(String jwtToken) {
+
+        Claims payload = null;
+
+        try {
+            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(jwtToken);
+        }
+
+        catch (ExpiredJwtException e) {
+            payload = e.getClaims();
+        }
+
+        String mobileNumber = (String) payload.get("mobile_number");
+
+        MyClaims newPayload = new MyClaims(mobileNumber);
+
+        return newPayload;
+
     }
 
 }

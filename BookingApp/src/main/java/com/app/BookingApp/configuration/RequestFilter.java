@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -34,44 +35,61 @@ public class RequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filters)
             throws ServletException, IOException {
-        String authorizationHeader = request.getHeader("Authorization");
-        String refreshHeader = request.getHeader("Refresh-Token");
-        // request.getCookies();
-
-        String mobileNumber = null;
         String jwtToken = null;
         String refreshToken = null;
+        String mobileNumber = null;
+        Cookie[] cookies = request.getCookies();
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwtToken = authorizationHeader.split(" ")[1];
-            mobileNumber = jwtUtils.getUserMobileNumber(jwtToken);
+        if (cookies != null) {
+            System.out.println(cookies.length);
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("Authorization_1")) {
+                    jwtToken = cookie.getValue();
+                }
+
+                if (cookie.getName().equals("Authorization_2")) {
+                    refreshToken = cookie.getValue();
+                }
+            }
         }
 
-        if (refreshHeader != null){
-            refreshToken = refreshHeader;
+        if (refreshToken != null && jwtUtils.isTokenExpried(jwtToken)) {
+            jwtToken = refreshUtils.renewAccessToken(jwtToken);
+
+            Cookie cookie = new Cookie("Authorization_1", null);
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+
+            Cookie newCookie = new Cookie("Authorization_1", jwtToken);
+            newCookie.setHttpOnly(true);
+            newCookie.setMaxAge(60 * 60 * 30);
+            cookie.setPath("/");
+            response.addCookie(newCookie);
+
+        }
+
+        if (jwtToken != null) {
+            mobileNumber = jwtUtils.getUserMobileNumber(jwtToken);
         }
 
         if (mobileNumber != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userData = userService.loadUserByUsername(mobileNumber);
 
-            if (refreshHeader != null & jwtUtils.isTokenExpried(jwtToken) & refreshUtils.verifyToken(refreshToken)){
-                jwtToken = refreshUtils.renewAccessToken(jwtToken);
-            }
-
-            if (jwtUtils.VerifyToken(jwtToken, userData)) {
+            if (userData != null && jwtUtils.VerifyToken(jwtToken, userData)) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                         userData, null, userData.getAuthorities());
 
-                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                usernamePasswordAuthenticationToken
+                        .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-            }
-            else { 
+            } else {
                 // redirect to Login Page;
 
             }
-            
+
         }
 
         filters.doFilter(request, response);

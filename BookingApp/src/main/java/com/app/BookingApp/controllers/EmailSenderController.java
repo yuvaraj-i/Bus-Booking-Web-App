@@ -24,4 +24,9 @@ public class EmailSenderController {
         emailSenderService.sendEmailVerficationCode(userId);
     }
 
+    @GetMapping("/email/otp")
+    public void OtpGenerate() {
+        // emailSenderService.generateOtp();
+    }
+
 }

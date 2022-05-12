@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import com.app.BookingApp.models.MyClaims;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Jwts;
@@ -15,6 +16,7 @@ public class RefreshTokenUtils {
 
     private JwtTokenUtils jwtUtils;
 
+    @Autowired
     public RefreshTokenUtils(JwtTokenUtils jwtUtils) {
         this.jwtUtils = jwtUtils;
     }
@@ -24,7 +26,6 @@ public class RefreshTokenUtils {
 
     public String generateRefreshToken(MyClaims payload) {
         HashMap<String, Object> claims = new HashMap<>();
-        claims.put("id", payload.getId());
         claims.put("mobile_number", payload.getMobileNumber());
         String storedToken = createToken(claims);
         return storedToken;
@@ -45,9 +46,7 @@ public class RefreshTokenUtils {
     }
 
     public String renewAccessToken(String refreshToken) {
-        Long id = jwtUtils.getUserId(refreshToken);
-        String mobileNumber = jwtUtils.getUserMobileNumber(refreshToken);
-        MyClaims payload = new MyClaims(id, mobileNumber);
+        MyClaims payload = jwtUtils.getClamisFromExpriedToken(refreshToken);
 
         return jwtUtils.generateToken(payload);
     }

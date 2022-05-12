@@ -1,19 +1,24 @@
 package com.app.BookingApp.services;
 
-import java.util.ArrayList;
 import java.util.Optional;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 import com.app.BookingApp.configuration.JwtTokenUtils;
 import com.app.BookingApp.configuration.RefreshTokenUtils;
 import com.app.BookingApp.models.MyClaims;
 import com.app.BookingApp.models.MyUser;
+import com.app.BookingApp.models.Roles;
 import com.app.BookingApp.repository.MyUserRespository;
+import com.app.BookingApp.repository.RolesRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,22 +28,26 @@ public class HomeService {
     private JwtTokenUtils jwtUtils;
     private MyUserRespository userResposistory;
     private RefreshTokenUtils refreshUtils;
+    private PasswordEncoder passwordEncoder;
+    private RolesRepository rolesRepository;
 
     @Autowired
     public HomeService(AuthenticationManager authenticationManager,
             JwtTokenUtils jwtUtils, MyUserRespository userResposistory,
-            RefreshTokenUtils refreshUtils) {
+            RefreshTokenUtils refreshUtils, PasswordEncoder passwordEncoder, RolesRepository rolesRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.userResposistory = userResposistory;
         this.refreshUtils = refreshUtils;
+        this.passwordEncoder = passwordEncoder;
+        this.rolesRepository = rolesRepository;
     }
 
-    public ResponseEntity<Object> authentication(MyUser user) {
-
+    public ResponseEntity<Object> authentication(MyUser user, HttpServletResponse response) {
+        System.out.println(user.getMobileNumber());
         Optional<MyUser> optionalMobileNumber = userResposistory.findUserByMobileNumber(user.getMobileNumber());
 
-        if(!optionalMobileNumber.isPresent()){
+        if (!optionalMobileNumber.isPresent()) {
             return new ResponseEntity<Object>("Invalid mobile number", HttpStatus.UNAUTHORIZED);
 
         }
@@ -48,21 +57,23 @@ public class HomeService {
                     new UsernamePasswordAuthenticationToken(user.getMobileNumber(), user.getPassword()));
 
         } catch (Exception e) {
-            return new ResponseEntity<Object>("Invalid password", HttpStatus.UNAUTHORIZED);
-             
+            System.out.println(e);
+            return new ResponseEntity<Object>(e, HttpStatus.UNAUTHORIZED);
+
         }
 
         MyUser userData = userResposistory.findUserByMobileNumber(user.getMobileNumber()).get();
-        MyClaims claims = new MyClaims(userData.getId(), userData.getMobileNumber());
+        MyClaims claims = new MyClaims(userData.getMobileNumber());
         String jwtToken = jwtUtils.generateToken(claims);
         String refreshToken = refreshUtils.generateRefreshToken(claims);
-        ArrayList<String> tokens = new ArrayList<>();
-        
-        tokens.add("Bearer " + jwtToken);
-        tokens.add(refreshToken);
-        
-        return new ResponseEntity<Object>(tokens, HttpStatus.OK);
 
+        Cookie jwtCookie = addCookie("Authorization_1", jwtToken, 60 * 60 * 30);
+        response.addCookie(jwtCookie);
+
+        Cookie refreshCookie = addCookie("Authorization_2", refreshToken, 60 * 60 * 30);
+        response.addCookie(refreshCookie);
+
+        return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
     }
 
     public ResponseEntity<Object> addNewUser(MyUser user) {
@@ -75,17 +86,53 @@ public class HomeService {
 
         if (optionalMobile.isPresent()) {
             return new ResponseEntity<Object>("Mobile Number Already Present", HttpStatus.CONFLICT);
-            
+
         }
 
-        userResposistory.save(user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        MyUser savedUser = userResposistory.save(user);
+
+        Roles userRoles = new Roles();
+        userRoles.setUserId(savedUser);
+
+        // if(user.getRole() == null) {
+            userRoles.setRole("user");
+        // }
+        // else {
+            userRoles.setRole("user");
+
+        // }
+
+        rolesRepository.save(userRoles);
 
         return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
 
     }
 
-    public String renewAccessToken(String token) {
-        return null;
+
+    private Cookie addCookie(String cookieName, String cookieValue, int expirationTime) {
+        Cookie cookie = new Cookie(cookieName, cookieValue);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(expirationTime);
+
+        return cookie;
+
+    }
+
+    public ResponseEntity<Object> signout(HttpServletResponse response) { 
+
+        Cookie jwtCookie = addCookie("Authorization_1", null, 0);
+        Cookie refreshCookie = addCookie("Authorization_2", null, 0);
+
+        response.addCookie(jwtCookie);
+        response.addCookie(refreshCookie);
+
+        return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
+    }
+
+    public ResponseEntity<Object> accessDeniedError() {
+        return new ResponseEntity<Object>("Access Denied Contact Admin", HttpStatus.BAD_REQUEST);
     }
 
 }

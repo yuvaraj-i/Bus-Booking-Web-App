@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -39,18 +39,23 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
+        // return new 
     }
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable().authorizeRequests().anyRequest().permitAll();
-                // .antMatchers("/auth/signup").permitAll()
-                // .antMatchers("/auth/login").permitAll()
-                // .anyRequest().authenticated().and()
-                // .exceptionHandling().and().sessionManagement()
-                // .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+            http.csrf().disable().authorizeRequests()
+                    .antMatchers("/auth/signup").permitAll()
+                    .antMatchers("/auth/login").permitAll()
+                    // .antMatchers("/booking/**", "/bus/**").hasAnyRole("user", "admin")
+                    // .antMatchers("/user/**").hasAnyRole("user")
+                    // .antMatchers("/admin/**").hasAnyRole("user")
+                    .anyRequest().authenticated().and()
+                    .exceptionHandling().and().sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.addFilterBefore(requstFilter, UsernamePasswordAuthenticationFilter.class);
+
     }
 }

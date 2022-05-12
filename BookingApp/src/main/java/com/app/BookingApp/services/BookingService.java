@@ -1,10 +1,12 @@
 package com.app.BookingApp.services;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import com.app.BookingApp.models.BookingResponse;
 import com.app.BookingApp.models.Bus;
 import com.app.BookingApp.models.MyUser;
 import com.app.BookingApp.models.Orders;
@@ -46,6 +48,7 @@ public class BookingService {
     }
 
     public ResponseEntity<Object> bookTicketForUser(UserBookingDetailsRequest userBookingDetails, Long busId) {        
+        
         String userEmail = userBookingDetails.getEmail();
         List<Passenger> listPassengers = userBookingDetails.getPassengers();
 
@@ -53,7 +56,6 @@ public class BookingService {
         Optional<Bus> optionalBus = busRespository.findById(busId);
 
         if ((!optionalUser.isPresent()) && (!optionalBus.isPresent())) {
-
             return new ResponseEntity<Object>("user name or email is not a registered", HttpStatus.BAD_REQUEST);
         }
 
@@ -65,10 +67,9 @@ public class BookingService {
         Bus bus = optionalBus.get();
 
         setAvaliabilty(busId, userBookingDetails.getSeatNumbers());
-
-        int bookingCharges = busService.calculateBusCharges(bus);
-        Ticket ticket = new Ticket();
+        int bookingCharges = busService.calculateBusCharges(bus, userBookingDetails.getSeatNumbers().size());
         
+        Ticket ticket = new Ticket();
         ticket.setBus(bus);
         ticket.setPassenger(listPassengers);
         ticket.setSeatNumbers(userBookingDetails.getSeatNumbers());
@@ -80,7 +81,17 @@ public class BookingService {
         userOrders.setUser(user);
         orderReposistory.save(userOrders);
 
-        return new ResponseEntity<Object>(ticketSave, HttpStatus.OK);
+        BookingResponse bookingDetails = new BookingResponse();
+        bookingDetails.setBusName(bus.getBusName());
+        bookingDetails.setDestinationLocation(bus.getEndLocation());
+        bookingDetails.setBoardingLocation(bus.getStartLocation());
+        bookingDetails.setBookingDate(LocalDate.now());
+        bookingDetails.setPassengers(userBookingDetails.getPassengers());
+        bookingDetails.setSeatNumbers(userBookingDetails.getSeatNumbers());
+        bookingDetails.setCharges(bookingCharges);
+        bookingDetails.setTicketId(ticketSave.getId());
+
+        return new ResponseEntity<Object>(bookingDetails, HttpStatus.OK);
 
     }
 

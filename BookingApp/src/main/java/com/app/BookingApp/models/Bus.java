@@ -24,10 +24,11 @@ public class Bus {
     private String type;
     private String startLocation;
     private String endLocation;
-    private String boardingPoint;
+    private String pickupPoint;
     private String dropingPoint;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private LocalTime startingTime;
+    private LocalTime reachingTime;
+    private int seatPrice;
     private String numberPlateDeatails;
     private boolean isAvaliable = true;
     private boolean isDestinationReached = false;

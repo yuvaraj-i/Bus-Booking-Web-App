@@ -45,7 +45,7 @@ public class BusService {
     }
 
     public ResponseEntity<Object> addBusDetails(Iterable<Bus> busDatas) {
-        
+
         Iterator<Bus> iterator = busRespository.saveAll(busDatas).iterator();
 
         while (iterator.hasNext()) {
@@ -59,16 +59,24 @@ public class BusService {
             }
         }
 
-        return new ResponseEntity<Object>("SUCCESS", HttpStatus.CREATED);
+        return new ResponseEntity<Object>(busDatas, HttpStatus.CREATED);
     }
 
     public ResponseEntity<Object> getAllLocations() {
         Map<String, Object> response = new HashMap<>();
+        ArrayList<String> locationsList = new ArrayList<>();
+
         Iterable<Location> locations = locationRepository.findAll();
         Long numberOfLocations = locationRepository.count();
+        Iterator<Location> locationsIter = locations.iterator();
+
+        while (locationsIter.hasNext()) {
+            Location locationName = locationsIter.next();
+            locationsList.add(locationName.getLocation());
+        }
 
         response.put("count", numberOfLocations);
-        response.put("results", locations);
+        response.put("results", locationsList);
 
         return new ResponseEntity<Object>(response, HttpStatus.OK);
 
@@ -96,7 +104,7 @@ public class BusService {
         if (!optionalBus.isPresent()) {
             return new ResponseEntity<Object>("no such bus found", HttpStatus.OK);
         }
-        
+
         Iterable<Seat> avaliableSeats = seatRepository.findByBusId(busId);
         int totalBusSeats = optionalBus.get().getNumberOfSeats();
 
@@ -133,12 +141,13 @@ public class BusService {
 
         }
 
-        ArrayList<Bus> busesList = busRespository.findAllBusByBoardingAndDestination(boardingLocation, destinationLocation);
-        
-        if(busesList.size() == 0){
+        ArrayList<Bus> busesList = busRespository.findAllBusByBoardingAndDestination(boardingLocation,
+                destinationLocation);
+
+        if (busesList.size() == 0) {
             return new ResponseEntity<Object>("no bus avaliable", HttpStatus.OK);
         }
-        
+
         Map<String, Object> busResponse = new HashMap<>();
 
         busResponse.put("counts", busesList.size());
@@ -148,13 +157,10 @@ public class BusService {
 
     }
 
-    public int calculateBusCharges(Bus bus){
-        
-        // int hourCharge = [150, 200, 100, 130, 160];
+    public int calculateBusCharges(Bus bus, int numberOfSeats) {
 
-        int bookingCharges = bus.getEndTime().compareTo(bus.getStartTime()); //* hourCharge;
-
-        return 800;
+        int seatPrice = bus.getSeatPrice();
+        return numberOfSeats * seatPrice;
     }
 
 }

@@ -1,11 +1,13 @@
 package com.app.BookingApp.controllers;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.app.BookingApp.models.MyUser;
 import com.app.BookingApp.services.HomeService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,10 +24,9 @@ public class HomeController {
         this.homeService = homeService;
     }
     
-    @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/login")
-    public ResponseEntity<Object> createAuthenticationToken(@RequestBody MyUser user) {
-        return homeService.authentication(user);
+    public ResponseEntity<Object> createAuthenticationToken(@RequestBody MyUser user, HttpServletResponse response) {
+        return homeService.authentication(user, response);
 
     }
 
@@ -34,9 +35,15 @@ public class HomeController {
         return homeService.addNewUser(user);
     }
 
-    @PostMapping("/renewal")
-    public String updateAccessToken(@RequestBody String token){
-        return homeService.renewAccessToken(token);
+    @GetMapping("/signout")
+    public ResponseEntity<Object> clearResponseCookies(HttpServletResponse response) {
+        return homeService.signout(response);
     }
+
+    @GetMapping("/accessDenied")
+    public ResponseEntity<Object> accessDeniedError() {
+        return homeService.accessDeniedError();
+    }
+
 
 }

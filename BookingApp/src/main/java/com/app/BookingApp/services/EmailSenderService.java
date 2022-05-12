@@ -16,6 +16,7 @@ public class EmailSenderService {
     private MyUserRespository userRespository;
     private JavaMailSender emailSender;
 
+
     @Autowired
     public EmailSenderService(MyUserRespository userRespository, JavaMailSender emailSender) {
         this.userRespository = userRespository;
@@ -42,5 +43,6 @@ public class EmailSenderService {
 
         // return "success
     }
+
     
 }

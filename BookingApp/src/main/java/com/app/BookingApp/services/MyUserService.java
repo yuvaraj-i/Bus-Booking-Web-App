@@ -2,6 +2,7 @@ package com.app.BookingApp.services;
 
 import java.util.ArrayList;
 import java.util.Optional;
+
 import javax.transaction.Transactional;
 
 import com.app.BookingApp.models.MyUser;
@@ -26,7 +27,15 @@ public class MyUserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String mobileNumber) throws UsernameNotFoundException {
-        MyUser user = userRespository.findUserByMobileNumber(mobileNumber).get();
+        Optional<MyUser> optionalUser = userRespository.findUserByMobileNumber(mobileNumber);
+
+        if (!optionalUser.isPresent()) {
+            return null;
+        }
+
+        MyUser user = optionalUser.get();
+
+        // return new MyUserImpl(user);
 
         return new User(user.getMobileNumber(), user.getPassword(), new ArrayList<>());
     }
