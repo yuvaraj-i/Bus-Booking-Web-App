@@ -1,15 +1,15 @@
 package com.app.BookingApp.services;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
 
 import com.app.BookingApp.models.MyUser;
+import com.app.BookingApp.models.Roles;
 import com.app.BookingApp.repository.MyUserRespository;
+import com.app.BookingApp.repository.RolesRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,10 +19,12 @@ import org.springframework.stereotype.Service;
 public class MyUserService implements UserDetailsService {
 
     private MyUserRespository userRespository;
+    private RolesRepository rolesRepository;
 
     @Autowired
-    public MyUserService(MyUserRespository userRespository) {
+    public MyUserService(MyUserRespository userRespository, RolesRepository rolesRepository) {
         this.userRespository = userRespository;
+        this.rolesRepository = rolesRepository;
     }
 
     @Override
@@ -35,9 +37,16 @@ public class MyUserService implements UserDetailsService {
 
         MyUser user = optionalUser.get();
 
-        // return new MyUserImpl(user);
+        
+        // return new User(user.getMobileNumber(), user.getPassword(), new ArrayList<>());
+        
+        Iterable<Roles> userRoles = rolesRepository.findByUserId(user.getId());
+        MyUserDetails userWithAuthorithy = new MyUserDetails(user, userRoles);
+        
+        // System.out.println(userWithAuthorithy.getUsername());
+        // System.out.println(userWithAuthorithy.getUsername());
 
-        return new User(user.getMobileNumber(), user.getPassword(), new ArrayList<>());
+        return userWithAuthorithy;
     }
 
     public Iterable<MyUser> getAllUsers() {

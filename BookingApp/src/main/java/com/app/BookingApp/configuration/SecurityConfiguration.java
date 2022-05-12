@@ -40,7 +40,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-        // return new 
     }
 
     @Override
@@ -48,9 +47,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             http.csrf().disable().authorizeRequests()
                     .antMatchers("/auth/signup").permitAll()
                     .antMatchers("/auth/login").permitAll()
-                    // .antMatchers("/booking/**", "/bus/**").hasAnyRole("user", "admin")
-                    // .antMatchers("/user/**").hasAnyRole("user")
-                    // .antMatchers("/admin/**").hasAnyRole("user")
+                    .antMatchers("/booking/**", "/bus/**").hasAnyAuthority("user", "admin")
+                    .antMatchers("/user/**").hasAnyAuthority("user")
+                    .antMatchers("/admin/**").hasAnyAuthority("admin")
                     .anyRequest().authenticated().and()
                     .exceptionHandling().and().sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

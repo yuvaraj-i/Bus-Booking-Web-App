@@ -1,5 +1,6 @@
 package com.app.BookingApp.services;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 import javax.servlet.http.Cookie;
@@ -44,7 +45,7 @@ public class HomeService {
     }
 
     public ResponseEntity<Object> authentication(MyUser user, HttpServletResponse response) {
-        System.out.println(user.getMobileNumber());
+
         Optional<MyUser> optionalMobileNumber = userResposistory.findUserByMobileNumber(user.getMobileNumber());
 
         if (!optionalMobileNumber.isPresent()) {
@@ -57,8 +58,7 @@ public class HomeService {
                     new UsernamePasswordAuthenticationToken(user.getMobileNumber(), user.getPassword()));
 
         } catch (Exception e) {
-            System.out.println(e);
-            return new ResponseEntity<Object>(e, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<Object>("Invalid Password", HttpStatus.UNAUTHORIZED);
 
         }
 
@@ -93,17 +93,24 @@ public class HomeService {
         MyUser savedUser = userResposistory.save(user);
 
         Roles userRoles = new Roles();
-        userRoles.setUserId(savedUser);
+        userRoles.setUser(savedUser);
 
         // if(user.getRole() == null) {
             userRoles.setRole("user");
         // }
         // else {
-            userRoles.setRole("user");
+            // userRoles.setRole("user");
 
         // }
 
         rolesRepository.save(userRoles);
+        // Iterable<Roles> values = rolesRepository.findByUserId(savedUser.getId());
+        // Iterator<Roles> iter = values.iterator();
+        // while (iter.hasNext()) {
+        //    Roles role = iter.next();
+        //    System.out.println(role.getRole());
+            
+        // }
 
         return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
 
