@@ -1,11 +1,10 @@
 package com.app.BookingApp.controllers;
 
-import java.util.Optional;
-
-import com.app.BookingApp.models.MyUser;
 import com.app.BookingApp.services.MyUserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,7 +25,7 @@ public class MyUserController {
   }
 
   @GetMapping(path = "/{id}")
-  public Optional<MyUser> getUser(@PathVariable("id") Long id) {
+  public ResponseEntity<Object> getUser(@PathVariable("id") Long id) {
     return userService.getUserById(id);
   }
 
@@ -37,6 +36,11 @@ public class MyUserController {
 
     userService.updateUser(id, name, emailAddress);
 
+  }
+
+  @DeleteMapping("update/{id}")
+  public void deleteExtistingUser(@PathVariable("id") Long userId) {
+      userService.deleteExtistingUser(userId);
   }
 
 }

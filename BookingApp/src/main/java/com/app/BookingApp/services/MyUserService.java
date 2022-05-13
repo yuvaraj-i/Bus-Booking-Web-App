@@ -1,15 +1,21 @@
 package com.app.BookingApp.services;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
 
 import com.app.BookingApp.models.MyUser;
 import com.app.BookingApp.models.Roles;
+import com.app.BookingApp.models.UserProfile;
 import com.app.BookingApp.repository.MyUserRespository;
 import com.app.BookingApp.repository.RolesRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -37,24 +43,57 @@ public class MyUserService implements UserDetailsService {
 
         MyUser user = optionalUser.get();
 
-        
-        // return new User(user.getMobileNumber(), user.getPassword(), new ArrayList<>());
-        
+        // return new User(user.getMobileNumber(), user.getPassword(), new
+        // ArrayList<>());
+
         Iterable<Roles> userRoles = rolesRepository.findByUserId(user.getId());
         MyUserDetails userWithAuthorithy = new MyUserDetails(user, userRoles);
-        
+
         // System.out.println(userWithAuthorithy.getUsername());
         // System.out.println(userWithAuthorithy.getUsername());
 
         return userWithAuthorithy;
     }
 
-    public Iterable<MyUser> getAllUsers() {
-        return userRespository.findAll();
+    public List<UserProfile> getAllUsers() {
+        List<UserProfile> allUserList = new ArrayList<>();
+        Iterable<MyUser> allUserDatasList = userRespository.findAll();
+        Iterator<MyUser> userIterator = allUserDatasList.iterator();
+
+        while (userIterator.hasNext()) {
+            MyUser userData = userIterator.next();
+            UserProfile userResponse = new UserProfile();
+
+            userResponse.setAge(userData.getAge());
+            userResponse.setDateOfBirth(userData.getDateOfBirth());
+            userResponse.setEmailAddress(userData.getEmailAddress());
+            userResponse.setMobileNumber(userData.getMobileNumber());
+
+            allUserList.add(userResponse);
+        }
+
+        return allUserList;
     }
 
-    public Optional<MyUser> getUserById(Long id) {
-        return userRespository.findById(id);
+    public ResponseEntity<Object> getUserById(Long id) {
+        Optional<MyUser> optionalUser = userRespository.findById(id);
+
+        if(!optionalUser.isPresent()) {
+            return new ResponseEntity<Object>("User Not Found", HttpStatus.BAD_REQUEST);
+
+        }
+
+        MyUser user = optionalUser.get();
+        UserProfile userProfile = new UserProfile();
+        
+        userProfile.setDateOfBirth(user.getDateOfBirth());
+        userProfile.setEmailAddress(user.getEmailAddress());
+        userProfile.setMobileNumber(user.getMobileNumber());
+        userProfile.setName(user.getName());
+        userProfile.setAge(user.getAge());
+
+        return new ResponseEntity<Object>(userProfile, HttpStatus.OK);
+
     }
 
     public Optional<MyUser> getUserByMobileNumber(String mobileNumber) {

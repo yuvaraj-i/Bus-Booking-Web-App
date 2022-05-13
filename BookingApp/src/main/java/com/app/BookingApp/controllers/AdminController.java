@@ -1,7 +1,9 @@
 package com.app.BookingApp.controllers;
 
+import java.util.List;
+
 import com.app.BookingApp.models.Bus;
-import com.app.BookingApp.models.MyUser;
+import com.app.BookingApp.models.UserProfile;
 import com.app.BookingApp.services.BusService;
 import com.app.BookingApp.services.MyUserService;
 
@@ -39,13 +41,13 @@ public class AdminController {
     }
 
     @GetMapping("/all")
-    public Iterable<MyUser> getAllUsers() {
+    public List<UserProfile> getAllUsers() {
         return userService.getAllUsers();
     }
 
     @DeleteMapping("update/{id}")
-    public void deleteExtistingUser(@PathVariable("id") Long userId) {
-        userService.deleteExtistingUser(userId);
+    public void makeUserInactive(@PathVariable("id") Long userId) {
+        // userService.deleteExtistingUser(userId);
     }
 
 }
