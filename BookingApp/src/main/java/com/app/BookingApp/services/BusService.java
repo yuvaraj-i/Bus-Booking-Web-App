@@ -9,6 +9,7 @@ import java.util.Optional;
 import com.app.BookingApp.models.Bus;
 import com.app.BookingApp.models.Location;
 import com.app.BookingApp.models.Seat;
+import com.app.BookingApp.models.SeatResponse;
 import com.app.BookingApp.repository.BusRespository;
 import com.app.BookingApp.repository.LocationRepository;
 import com.app.BookingApp.repository.SeatRepository;
@@ -116,7 +117,7 @@ public class BusService {
         int totalBusSeats = optionalBus.get().getNumberOfSeats();
 
         Map<String, Object> seatResponse = new HashMap<>();
-        Map<Integer, Boolean> seatsStatus = new HashMap<>();
+        ArrayList<SeatResponse> seatsStatus = new ArrayList<>();
         Iterator<Seat> iterator = avaliableSeats.iterator();
         int avaliableSeatsCounts = 0;
 
@@ -127,7 +128,10 @@ public class BusService {
                 avaliableSeatsCounts += 1;
             }
 
-            seatsStatus.put(seat.getSeatNo(), seat.getIsAvaliable());
+            SeatResponse seatDetails = new SeatResponse();
+            seatDetails.setAvaliable(seat.getIsAvaliable());
+            seatDetails.setSeatNumber(seat.getSeatNo());
+            seatsStatus.add(seatDetails);
         }
 
         seatResponse.put("busId", busId);

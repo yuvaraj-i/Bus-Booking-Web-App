@@ -146,4 +146,27 @@ public class MyUserService implements UserDetailsService {
         return mobileNumber;
     }
 
+    public ResponseEntity<Object> getUserRoles(HttpServletRequest request) {
+
+        ArrayList<String> rolesList = new ArrayList<>();
+
+        String mobileNumber = getUserId(request);
+        Optional<MyUser> optionalUser = userRespository.findUserByMobileNumber(mobileNumber);
+
+        if (!optionalUser.isPresent()) {
+            return new ResponseEntity<Object>("User found", HttpStatus.BAD_REQUEST);
+        }
+
+        Long userId = optionalUser.get().getId();
+        Iterable<Roles> roles = rolesRepository.findByUserId(userId);
+        Iterator<Roles> rolesIterator = roles.iterator();
+
+        while (rolesIterator.hasNext()) {
+            Roles userRoles = rolesIterator.next();
+            rolesList.add(userRoles.getRole());
+        }
+
+        return new ResponseEntity<Object>(rolesList, HttpStatus.OK);
+    }
+
 }

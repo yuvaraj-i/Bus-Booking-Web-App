@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import com.app.BookingApp.models.MyClaims;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +16,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 @Service
 public class JwtTokenUtils {
-    // @Value("${Access_key}")
-    private String SECRET_KEY = "yxdrewxfkcffflkmcdnkcdjbjc";
+    @Value("${Access_key}")
+    private String SECRET_KEY;
 
     public String getUserMobileNumber(String token) {
         return (String) getPayload(token).get("mobile_number");

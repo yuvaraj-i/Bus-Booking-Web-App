@@ -19,6 +19,7 @@ import com.app.BookingApp.models.UserBookingDetailsRequest;
 import com.app.BookingApp.repository.BusRespository;
 import com.app.BookingApp.repository.MyUserRespository;
 import com.app.BookingApp.repository.OrderReposistory;
+import com.app.BookingApp.repository.PassengerReposistory;
 import com.app.BookingApp.repository.SeatRepository;
 import com.app.BookingApp.repository.TicketReposistory;
 
@@ -37,11 +38,13 @@ public class BookingService {
     private MyUserService userService;
     private BusService busService;
     private SeatRepository seatRepository;
+    private PassengerReposistory passengerReposistory;
 
     @Autowired
     public BookingService(MyUserRespository userRespository, BusRespository busRespository,
             TicketReposistory ticketReposistory, OrderReposistory orderReposistory,
-            BusService busService, SeatRepository seatRepository, MyUserService userService) {
+            BusService busService, SeatRepository seatRepository, MyUserService userService, 
+            PassengerReposistory passengerReposistory) {
         this.userRespository = userRespository;
         this.busRespository = busRespository;
         this.ticketReposistory = ticketReposistory;
@@ -49,12 +52,13 @@ public class BookingService {
         this.busService = busService;
         this.seatRepository = seatRepository;
         this.userService = userService;
+        this.passengerReposistory = passengerReposistory;
     }
 
     public ResponseEntity<Object> bookTicketForUser(UserBookingDetailsRequest userBookingDetails, Long busId) {
 
         String userEmail = userBookingDetails.getEmail();
-        List<Passenger> listPassengers = userBookingDetails.getPassengers();
+        ArrayList<Passenger> passengersList = userBookingDetails.getPassengers();
 
         Optional<MyUser> optionalUser = userRespository.findUserByEmailAddress(userEmail);
         Optional<Bus> optionalBus = busRespository.findById(busId);
@@ -77,12 +81,26 @@ public class BookingService {
         setAvaliabilty(busId, userBookingDetails.getSeatNumbers());
         int bookingCharges = busService.calculateBusCharges(bus, userBookingDetails.getSeatNumbers().size());
 
+        ArrayList<Passenger> savePassengersList = new ArrayList<>();
+        
+        for(int index = 0; index < passengersList.size(); index++) {
+            Passenger passengerDetails = passengersList.get(index);
+
+            Passenger passenger = new Passenger();
+            passenger.setName(passengerDetails.getName());
+            passenger.setGender(passengerDetails.getGender());
+            Passenger savedPassenger = passengerReposistory.save(passenger);
+
+            savePassengersList.add(savedPassenger);
+        }
+
         Ticket ticket = new Ticket();
         ticket.setBus(bus);
-        ticket.setPassenger(listPassengers);
+        ticket.setPassenger(savePassengersList);
         ticket.setSeatNumbers(userBookingDetails.getSeatNumbers());
         ticket.setBusCharges(bookingCharges);
         ticket.setBookedDate(LocalDate.now());
+        ticket.setTravellingDate(userBookingDetails.getTravelingDate());
         Ticket ticketSave = ticketReposistory.save(ticket);
 
         Orders userOrders = new Orders();
@@ -95,12 +113,13 @@ public class BookingService {
         bookingDetails.setDestinationLocation(bus.getEndLocation());
         bookingDetails.setBoardingLocation(bus.getStartLocation());
         bookingDetails.setPickupPoint(bus.getPickupPoint());
-        bookingDetails.setPickupPoint(bus.getDropingPoint());
+        bookingDetails.setDropingPoint(bus.getDropingPoint());
         bookingDetails.setBookingDate(ticketSave.getBookedDate());
-        bookingDetails.setPassengers(userBookingDetails.getPassengers());
+        bookingDetails.setPassengers(ticketSave.getPassenger());
         bookingDetails.setSeatNumbers(userBookingDetails.getSeatNumbers());
         bookingDetails.setCharges(bookingCharges);
         bookingDetails.setTicketId(ticketSave.getId());
+        bookingDetails.setTravelingDate(ticketSave.getTravellingDate());
 
         return new ResponseEntity<Object>(bookingDetails, HttpStatus.OK);
 

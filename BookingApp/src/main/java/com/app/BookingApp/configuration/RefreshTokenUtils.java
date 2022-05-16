@@ -9,6 +9,7 @@ import com.app.BookingApp.models.MyUser;
 import com.app.BookingApp.services.MyUserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Jwts;
@@ -26,7 +27,8 @@ public class RefreshTokenUtils {
         this.userService = userService;
     }
 
-    private String SECRET_KEY = "ggygdupwhdpowndjbskhcvhgwvcjhbwjhckvcqh";
+    @Value("${Refresh_key}")
+    private String SECRET_KEY;
     private String storedToken = "";
 
     public String generateRefreshToken(MyClaims payload) {

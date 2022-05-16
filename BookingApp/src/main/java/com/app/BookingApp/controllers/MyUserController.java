@@ -45,4 +45,8 @@ public class MyUserController {
       userService.deleteExtistingUser(userId);
   }
 
+  @GetMapping("/roles")
+  public ResponseEntity<Object> getUserRoles(HttpServletRequest request) {
+    return userService.getUserRoles(request);
+  }
 }

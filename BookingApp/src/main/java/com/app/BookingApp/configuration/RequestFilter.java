@@ -63,7 +63,7 @@ public class RequestFilter extends OncePerRequestFilter {
             Cookie newCookie = new Cookie("Authorization_1", jwtToken);
             newCookie.setHttpOnly(true);
             newCookie.setMaxAge(60 * 60 * 30);
-            cookie.setPath("/");
+            newCookie.setPath("/");
             response.addCookie(newCookie);
 
         }

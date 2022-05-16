@@ -32,5 +32,6 @@ public class Ticket {
     private int busCharges;
     private ArrayList<Integer> seatNumbers;
     private LocalDate bookedDate;
+    private LocalDate travellingDate;
 
 }
