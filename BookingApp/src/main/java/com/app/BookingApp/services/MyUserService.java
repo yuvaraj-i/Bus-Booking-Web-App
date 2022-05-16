@@ -5,8 +5,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
+import com.app.BookingApp.configuration.JwtTokenUtils;
 import com.app.BookingApp.models.MyUser;
 import com.app.BookingApp.models.Roles;
 import com.app.BookingApp.models.UserProfile;
@@ -26,11 +29,14 @@ public class MyUserService implements UserDetailsService {
 
     private MyUserRespository userRespository;
     private RolesRepository rolesRepository;
+    private JwtTokenUtils jwtTokenUtils;
 
     @Autowired
-    public MyUserService(MyUserRespository userRespository, RolesRepository rolesRepository) {
+    public MyUserService(MyUserRespository userRespository, RolesRepository rolesRepository,
+            JwtTokenUtils jwtTokenUtils) {
         this.userRespository = userRespository;
         this.rolesRepository = rolesRepository;
+        this.jwtTokenUtils = jwtTokenUtils;
     }
 
     @Override
@@ -64,6 +70,7 @@ public class MyUserService implements UserDetailsService {
             MyUser userData = userIterator.next();
             UserProfile userResponse = new UserProfile();
 
+            userResponse.setName(userData.getName());
             userResponse.setAge(userData.getAge());
             userResponse.setDateOfBirth(userData.getDateOfBirth());
             userResponse.setEmailAddress(userData.getEmailAddress());
@@ -75,17 +82,18 @@ public class MyUserService implements UserDetailsService {
         return allUserList;
     }
 
-    public ResponseEntity<Object> getUserById(Long id) {
-        Optional<MyUser> optionalUser = userRespository.findById(id);
+    public ResponseEntity<Object> getUserById(HttpServletRequest request) {
+        String mobileNumber = getUserId(request);
+        Optional<MyUser> optionalUser = userRespository.findUserByMobileNumber(mobileNumber);
 
-        if(!optionalUser.isPresent()) {
+        if (!optionalUser.isPresent()) {
             return new ResponseEntity<Object>("User Not Found", HttpStatus.BAD_REQUEST);
 
         }
 
         MyUser user = optionalUser.get();
         UserProfile userProfile = new UserProfile();
-        
+
         userProfile.setDateOfBirth(user.getDateOfBirth());
         userProfile.setEmailAddress(user.getEmailAddress());
         userProfile.setMobileNumber(user.getMobileNumber());
@@ -118,6 +126,24 @@ public class MyUserService implements UserDetailsService {
             throw new IllegalArgumentException("User not found");
         }
 
+    }
+
+    public String getUserId(HttpServletRequest request) {
+        String jwtToken = "";
+
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("Authorization_1")) {
+                    jwtToken = cookie.getValue();
+                }
+            }
+        }
+
+        String mobileNumber = jwtTokenUtils.getUserMobileNumber(jwtToken);
+
+        return mobileNumber;
     }
 
 }

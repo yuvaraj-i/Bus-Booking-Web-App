@@ -1,5 +1,7 @@
 package com.app.BookingApp.controllers;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.app.BookingApp.models.UserBookingDetailsRequest;
 import com.app.BookingApp.services.BookingService;
 
@@ -28,9 +30,9 @@ public class BookingController {
         return bookingService.bookTicketForUser(userBookingDetails, busId);
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<Object> userBookingHistory(@PathVariable("userId") Long userId) {
-        return bookingService.getUserBookingDetils(userId);
+    @GetMapping("/details")
+    public ResponseEntity<Object> userBookingHistory(HttpServletRequest request) {
+        return bookingService.getUserBookingDetils(request);
     }
 
 }

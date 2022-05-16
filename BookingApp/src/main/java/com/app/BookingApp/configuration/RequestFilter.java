@@ -40,8 +40,7 @@ public class RequestFilter extends OncePerRequestFilter {
         String mobileNumber = null;
         Cookie[] cookies = request.getCookies();
 
-        if (cookies != null) {
-            System.out.println(cookies.length);
+        if (cookies != null) {;
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals("Authorization_1")) {
                     jwtToken = cookie.getValue();

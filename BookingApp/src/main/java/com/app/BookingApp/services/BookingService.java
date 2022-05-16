@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.app.BookingApp.models.BookingResponse;
 import com.app.BookingApp.models.Bus;
 import com.app.BookingApp.models.MyUser;
@@ -32,19 +34,21 @@ public class BookingService {
     private BusRespository busRespository;
     private TicketReposistory ticketReposistory;
     private OrderReposistory orderReposistory;
+    private MyUserService userService;
     private BusService busService;
     private SeatRepository seatRepository;
 
     @Autowired
     public BookingService(MyUserRespository userRespository, BusRespository busRespository,
             TicketReposistory ticketReposistory, OrderReposistory orderReposistory,
-            BusService busService, SeatRepository seatRepository) {
+            BusService busService, SeatRepository seatRepository, MyUserService userService) {
         this.userRespository = userRespository;
         this.busRespository = busRespository;
         this.ticketReposistory = ticketReposistory;
         this.orderReposistory = orderReposistory;
         this.busService = busService;
         this.seatRepository = seatRepository;
+        this.userService = userService;
     }
 
     public ResponseEntity<Object> bookTicketForUser(UserBookingDetailsRequest userBookingDetails, Long busId) {
@@ -121,7 +125,15 @@ public class BookingService {
 
     }
 
-    public ResponseEntity<Object> getUserBookingDetils(Long userId) {
+    public ResponseEntity<Object> getUserBookingDetils(HttpServletRequest request) {
+        String mobileNumber = userService.getUserId(request);
+        Optional<MyUser> optionalUser = userRespository.findUserByMobileNumber(mobileNumber);
+
+        if (!optionalUser.isPresent()) {
+            return new ResponseEntity<Object>("User not found", HttpStatus.BAD_REQUEST);
+        }
+
+        Long userId = optionalUser.get().getId();
         List<BookingResponse> userTickets = new ArrayList<>();
         Iterable<Orders> usersBookings = orderReposistory.findAllByUserId(userId);
         Iterator<Orders> usersBookingsIterator = usersBookings.iterator();

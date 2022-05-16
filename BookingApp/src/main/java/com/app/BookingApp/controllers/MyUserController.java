@@ -1,5 +1,7 @@
 package com.app.BookingApp.controllers;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.app.BookingApp.services.MyUserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +26,9 @@ public class MyUserController {
 
   }
 
-  @GetMapping(path = "/{id}")
-  public ResponseEntity<Object> getUser(@PathVariable("id") Long id) {
-    return userService.getUserById(id);
+  @GetMapping(path = "/details")
+  public ResponseEntity<Object> getUser(HttpServletRequest request) {
+    return userService.getUserById(request);
   }
 
   @PutMapping(path = "update/{userId}")
