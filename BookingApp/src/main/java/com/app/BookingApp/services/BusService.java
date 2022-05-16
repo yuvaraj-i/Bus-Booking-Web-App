@@ -174,4 +174,10 @@ public class BusService {
         return numberOfSeats * seatPrice;
     }
 
+    public ResponseEntity<Object> updateBusData(Bus bus) {
+        busRespository.save(bus);
+
+        return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
+    }
+
 }

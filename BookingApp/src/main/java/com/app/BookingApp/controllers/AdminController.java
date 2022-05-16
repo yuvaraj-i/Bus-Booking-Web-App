@@ -50,6 +50,9 @@ public class AdminController {
         // userService.deleteExtistingUser(userId);
     }
 
-    // @GetMapping("")
+    @PostMapping("/bus/update")
+    public ResponseEntity<Object> updateBusDetails(@RequestBody Bus bus) {
+        return busService.updateBusData(bus);
+    }
 
 }
