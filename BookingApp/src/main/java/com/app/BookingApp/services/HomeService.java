@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -56,8 +58,13 @@ public class HomeService {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getMobileNumber(), user.getPassword()));
 
-        } catch (Exception e) {
-            return new ResponseEntity<Object>("Invalid Password", HttpStatus.UNAUTHORIZED);
+        }
+        catch (DisabledException e) {
+            return new ResponseEntity<Object>("Account Locked Contact Admin", HttpStatus.UNAUTHORIZED);
+
+        }
+        catch (BadCredentialsException e) {
+            return new ResponseEntity<Object>("Invalid Password", HttpStatus.BAD_REQUEST);
 
         }
 
@@ -95,10 +102,10 @@ public class HomeService {
         userRoles.setUser(savedUser);
 
         // if(user.getRole() == null) {
-            userRoles.setRole("user");
+        userRoles.setRole("user");
         // }
         // else {
-            // userRoles.setRole("user");
+        // userRoles.setRole("user");
 
         // }
 
@@ -106,15 +113,14 @@ public class HomeService {
         // Iterable<Roles> values = rolesRepository.findByUserId(savedUser.getId());
         // Iterator<Roles> iter = values.iterator();
         // while (iter.hasNext()) {
-        //    Roles role = iter.next();
-        //    System.out.println(role.getRole());
-            
+        // Roles role = iter.next();
+        // System.out.println(role.getRole());
+
         // }
 
         return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
 
     }
-
 
     private Cookie addCookie(String cookieName, String cookieValue, int expirationTime) {
         Cookie cookie = new Cookie(cookieName, cookieValue);
@@ -126,7 +132,7 @@ public class HomeService {
 
     }
 
-    public ResponseEntity<Object> signout(HttpServletResponse response) { 
+    public ResponseEntity<Object> signout(HttpServletResponse response) {
 
         Cookie jwtCookie = addCookie("Authorization_1", null, 0);
         Cookie refreshCookie = addCookie("Authorization_2", null, 0);

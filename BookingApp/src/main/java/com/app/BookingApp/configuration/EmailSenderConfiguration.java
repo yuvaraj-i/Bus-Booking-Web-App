@@ -20,16 +20,16 @@ public class EmailSenderConfiguration {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
-        
+
         mailSender.setUsername(springAppEmailAddress);
         mailSender.setPassword(SpringAppPassword);
-        
+
         Properties mailProperties = mailSender.getJavaMailProperties();
         mailProperties.put("mail.transport.protocol", "smtp");
         mailProperties.put("mail.smtp.starttls.enable", true);
         mailProperties.put("mail.smtp.ssl.trust", "smtp.gmail.com");
-        
+
         return mailSender;
-    } 
-    
+    }
+
 }

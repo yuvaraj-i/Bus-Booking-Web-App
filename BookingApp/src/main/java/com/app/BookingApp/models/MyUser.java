@@ -25,6 +25,7 @@ public class MyUser {
     private LocalDate dateOfBirth;
     private int age;
     private String password;
+    private boolean isEnabled = true;
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;

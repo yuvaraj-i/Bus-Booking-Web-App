@@ -45,14 +45,35 @@ public class AdminController {
         return userService.getAllUsers();
     }
 
-    @DeleteMapping("update/{id}")
-    public void makeUserInactive(@PathVariable("id") Long userId) {
-        // userService.deleteExtistingUser(userId);
-    }
-
     @PostMapping("/bus/update")
     public ResponseEntity<Object> updateBusDetails(@RequestBody Bus bus) {
         return busService.updateBusData(bus);
     }
+
+    @GetMapping("/bus/all")
+    public Iterable<Bus> getAllBuses() {
+        return busService.getAllbuses();
+    }
+
+    @DeleteMapping("/user/disable/{id}")
+    public ResponseEntity<Object> disableUser(@PathVariable("id") String mobileNumber) {
+        return userService.setUserInActive(mobileNumber);
+    }
+
+    @DeleteMapping("/user/enable/{id}")
+    public ResponseEntity<Object> enableUser(@PathVariable("id") String mobileNumber) {
+        return userService.setUserActive(mobileNumber);
+    }
+
+    @DeleteMapping("/delete/location/{id}")
+    public ResponseEntity<Object> deleteLocation(@PathVariable("id") String location) {
+        return busService.deleteLocation(location);
+
+    }
+
+    // @DeleteMapping("/delete/bus/{id}")
+    // public ResponseEntity<Object> deleteBusData(@PathVariable("id") String busRegisterNumber){
+    //     return busService.deleteBusData(busRegisterNumber);
+    // }
 
 }

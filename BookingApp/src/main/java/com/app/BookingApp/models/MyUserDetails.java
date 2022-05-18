@@ -1,12 +1,9 @@
-package com.app.BookingApp.services;
+package com.app.BookingApp.models;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
-import com.app.BookingApp.models.MyUser;
-import com.app.BookingApp.models.Roles;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,21 +15,13 @@ public class MyUserDetails implements UserDetails {
 
     private Iterable<Roles> roles;
     private MyUser user;
-    // private RolesRepository rolesRepository;
-    
-    // @Autowired
-    // public MyUserDetails(RolesRepository rolesRepository) {
-    //     this.rolesRepository = rolesRepository;
-    // 
+
     public MyUserDetails () {}
 
 
     public MyUserDetails(MyUser user, Iterable<Roles> roles) {
         this.user = user;
         this.roles = roles;
-        
-        // Iterable<Roles> userRoles = rolesRepository.findByUserId(user.getId());
-        // System.out.println(userRoles);
     }
 
     @Override
@@ -75,7 +64,7 @@ public class MyUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.user.isEnabled();
     }
 
 }

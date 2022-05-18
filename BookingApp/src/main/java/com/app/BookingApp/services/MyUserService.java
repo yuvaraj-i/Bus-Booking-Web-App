@@ -11,6 +11,7 @@ import javax.transaction.Transactional;
 
 import com.app.BookingApp.configuration.JwtTokenUtils;
 import com.app.BookingApp.models.MyUser;
+import com.app.BookingApp.models.MyUserDetails;
 import com.app.BookingApp.models.Roles;
 import com.app.BookingApp.models.UserProfile;
 import com.app.BookingApp.repository.MyUserRespository;
@@ -48,15 +49,8 @@ public class MyUserService implements UserDetailsService {
         }
 
         MyUser user = optionalUser.get();
-
-        // return new User(user.getMobileNumber(), user.getPassword(), new
-        // ArrayList<>());
-
         Iterable<Roles> userRoles = rolesRepository.findByUserId(user.getId());
         MyUserDetails userWithAuthorithy = new MyUserDetails(user, userRoles);
-
-        // System.out.println(userWithAuthorithy.getUsername());
-        // System.out.println(userWithAuthorithy.getUsername());
 
         return userWithAuthorithy;
     }
@@ -75,6 +69,9 @@ public class MyUserService implements UserDetailsService {
             userResponse.setDateOfBirth(userData.getDateOfBirth());
             userResponse.setEmailAddress(userData.getEmailAddress());
             userResponse.setMobileNumber(userData.getMobileNumber());
+
+            ArrayList<String> userRoles = getListRoles(userData.getId());
+            userResponse.setRoles(userRoles);
 
             allUserList.add(userResponse);
         }
@@ -154,7 +151,7 @@ public class MyUserService implements UserDetailsService {
         Optional<MyUser> optionalUser = userRespository.findUserByMobileNumber(mobileNumber);
 
         if (!optionalUser.isPresent()) {
-            return new ResponseEntity<Object>("User found", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>("User not found", HttpStatus.BAD_REQUEST);
         }
 
         Long userId = optionalUser.get().getId();
@@ -167,6 +164,56 @@ public class MyUserService implements UserDetailsService {
         }
 
         return new ResponseEntity<Object>(rolesList, HttpStatus.OK);
+    }
+
+    public ArrayList<String> getListRoles(Long userId) {
+        ArrayList<String> rolesList = new ArrayList<>();
+        Iterable<Roles> roles = rolesRepository.findByUserId(userId);
+        Iterator<Roles> rolesIterator = roles.iterator();
+
+        while (rolesIterator.hasNext()) {
+            Roles userRoles = rolesIterator.next();
+            rolesList.add(userRoles.getRole());
+        }
+
+        return rolesList;
+    }
+
+    public ResponseEntity<Object> setUserInActive(String mobileNumber) {
+        Optional<MyUser> optionalUser = userRespository.findUserByMobileNumber(mobileNumber);
+
+        if (!optionalUser.isPresent()) {
+            return new ResponseEntity<Object>("User not found", HttpStatus.BAD_REQUEST);
+
+        }
+
+        MyUser user = optionalUser.get();
+        userAccountConfig(user, false);
+
+        return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
+    }
+
+    public ResponseEntity<Object> setUserActive(String mobileNumber) {
+        Optional<MyUser> optionalUser = userRespository.findUserByMobileNumber(mobileNumber);
+
+        if (!optionalUser.isPresent()) {
+            return new ResponseEntity<Object>("User not found", HttpStatus.BAD_REQUEST);
+
+        }
+
+        MyUser user = optionalUser.get();
+        userAccountConfig(user, true);
+
+        return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
+    }
+
+    private void userAccountConfig(MyUser user, boolean status) {
+
+        if (user.isEnabled() != status) {
+            user.setEnabled(status);
+
+        }
+
     }
 
 }

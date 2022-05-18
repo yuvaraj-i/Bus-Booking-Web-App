@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import com.app.BookingApp.models.Bus;
 import com.app.BookingApp.models.Location;
 import com.app.BookingApp.models.Seat;
@@ -176,6 +178,43 @@ public class BusService {
 
     public ResponseEntity<Object> updateBusData(Bus bus) {
         busRespository.save(bus);
+
+        return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
+    }
+
+    public Iterable<Bus> getAllbuses() {
+        Iterable<Bus> buses = busRespository.findAll();
+
+        return buses;
+    }
+
+    @Transactional
+    public ResponseEntity<Object> deleteLocation(String location) {
+        Optional<Location> optionalLocation = locationRepository.findByLocation(location);
+
+        if (!optionalLocation.isPresent()) {
+            return new ResponseEntity<Object>("Location not found", HttpStatus.BAD_REQUEST);
+        }
+
+        locationRepository.delete(optionalLocation.get());
+
+        return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
+    }
+
+    @Transactional
+    public ResponseEntity<Object> deleteBusData(String busRegisterNumber) {
+        Optional<Bus> optionalBus = busRespository.findBynumberPlateDeatails(busRegisterNumber);
+
+        if (!optionalBus.isPresent()) {
+            return new ResponseEntity<Object>("Bus not found", HttpStatus.BAD_REQUEST);
+        }
+
+        Bus bus = optionalBus.get();
+        Iterable<Seat> busSeatsList = seatRepository.findByBusId(bus.getId());
+        
+        
+        seatRepository.deleteAll(busSeatsList);
+        busRespository.delete(bus);
 
         return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
     }

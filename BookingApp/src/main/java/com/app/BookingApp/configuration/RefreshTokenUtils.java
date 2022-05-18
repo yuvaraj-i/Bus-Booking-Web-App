@@ -57,7 +57,7 @@ public class RefreshTokenUtils {
         Optional<MyUser> optionalUser = userService.getUserByMobileNumber(mobileNumber);
 
         if (!optionalUser.isPresent()) {
-            return jwtToken;
+            return null;
         }
 
         MyClaims newPayload = new MyClaims(mobileNumber);
