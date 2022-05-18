@@ -15,4 +15,5 @@ public class UserProfile {
     private LocalDate dateOfBirth;
     private int age; 
     private ArrayList<String> roles;
+    private boolean isEnable;
 }

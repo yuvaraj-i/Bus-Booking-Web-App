@@ -69,6 +69,7 @@ public class MyUserService implements UserDetailsService {
             userResponse.setDateOfBirth(userData.getDateOfBirth());
             userResponse.setEmailAddress(userData.getEmailAddress());
             userResponse.setMobileNumber(userData.getMobileNumber());
+            userResponse.setEnable(userData.isEnabled());
 
             ArrayList<String> userRoles = getListRoles(userData.getId());
             userResponse.setRoles(userRoles);
