@@ -55,12 +55,12 @@ public class AdminController {
         return busService.getAllbuses();
     }
 
-    @DeleteMapping("/user/disable/{id}")
+    @PutMapping("/user/disable/{id}")
     public ResponseEntity<Object> disableUser(@PathVariable("id") String mobileNumber) {
         return userService.setUserInActive(mobileNumber);
     }
 
-    @DeleteMapping("/user/enable/{id}")
+    @PutMapping("/user/enable/{id}")
     public ResponseEntity<Object> enableUser(@PathVariable("id") String mobileNumber) {
         return userService.setUserActive(mobileNumber);
     }

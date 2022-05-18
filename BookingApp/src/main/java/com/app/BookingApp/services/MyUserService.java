@@ -179,6 +179,8 @@ public class MyUserService implements UserDetailsService {
         return rolesList;
     }
 
+
+    @Transactional
     public ResponseEntity<Object> setUserInActive(String mobileNumber) {
         Optional<MyUser> optionalUser = userRespository.findUserByMobileNumber(mobileNumber);
 
@@ -193,6 +195,7 @@ public class MyUserService implements UserDetailsService {
         return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
     }
 
+    @Transactional
     public ResponseEntity<Object> setUserActive(String mobileNumber) {
         Optional<MyUser> optionalUser = userRespository.findUserByMobileNumber(mobileNumber);
 
