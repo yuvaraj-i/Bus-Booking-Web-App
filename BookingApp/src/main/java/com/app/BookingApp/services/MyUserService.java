@@ -179,7 +179,6 @@ public class MyUserService implements UserDetailsService {
         return rolesList;
     }
 
-
     @Transactional
     public ResponseEntity<Object> setUserInActive(String mobileNumber) {
         Optional<MyUser> optionalUser = userRespository.findUserByMobileNumber(mobileNumber);
@@ -190,6 +189,17 @@ public class MyUserService implements UserDetailsService {
         }
 
         MyUser user = optionalUser.get();
+        Iterable<Roles> rolesList = rolesRepository.findByUserId(user.getId());
+        Iterator<Roles> rolesListIterator = rolesList.iterator();
+        
+        while (rolesListIterator.hasNext()) {
+            Roles userRole = rolesListIterator.next();
+            if (userRole.getRole().equals("admin")) {
+                return new ResponseEntity<Object>("cann't be disable admin user", HttpStatus.BAD_REQUEST);
+
+            }
+        }
+
         userAccountConfig(user, false);
 
         return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
