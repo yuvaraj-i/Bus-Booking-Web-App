@@ -19,5 +19,6 @@ public class BookingResponse {
     private ArrayList<Integer> seatNumbers;
     private int charges;
     private Long ticketId;
+    private String busType;
 
 }

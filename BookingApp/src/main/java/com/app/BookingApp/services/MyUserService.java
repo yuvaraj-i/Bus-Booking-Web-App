@@ -12,10 +12,15 @@ import javax.transaction.Transactional;
 import com.app.BookingApp.configuration.JwtTokenUtils;
 import com.app.BookingApp.models.MyUser;
 import com.app.BookingApp.models.MyUserDetails;
+import com.app.BookingApp.models.Orders;
 import com.app.BookingApp.models.Roles;
+import com.app.BookingApp.models.Ticket;
 import com.app.BookingApp.models.UserProfile;
 import com.app.BookingApp.repository.MyUserRespository;
+import com.app.BookingApp.repository.OrderReposistory;
+import com.app.BookingApp.repository.PassengerReposistory;
 import com.app.BookingApp.repository.RolesRepository;
+import com.app.BookingApp.repository.TicketReposistory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,13 +36,20 @@ public class MyUserService implements UserDetailsService {
     private MyUserRespository userRespository;
     private RolesRepository rolesRepository;
     private JwtTokenUtils jwtTokenUtils;
+    private OrderReposistory orderReposistory;
+    private TicketReposistory ticketReposistory;
+    private PassengerReposistory passengerReposistory;
 
     @Autowired
     public MyUserService(MyUserRespository userRespository, RolesRepository rolesRepository,
-            JwtTokenUtils jwtTokenUtils) {
+            JwtTokenUtils jwtTokenUtils, OrderReposistory orderReposistory, TicketReposistory ticketReposistory,
+            PassengerReposistory passengerReposistory) {
         this.userRespository = userRespository;
         this.rolesRepository = rolesRepository;
         this.jwtTokenUtils = jwtTokenUtils;
+        this.orderReposistory = orderReposistory;
+        this.ticketReposistory = ticketReposistory;
+        this.passengerReposistory = passengerReposistory;
     }
 
     @Override
@@ -83,6 +95,7 @@ public class MyUserService implements UserDetailsService {
     public ResponseEntity<Object> getUserById(HttpServletRequest request) {
         String mobileNumber = getUserId(request);
         Optional<MyUser> optionalUser = userRespository.findUserByMobileNumber(mobileNumber);
+        ArrayList<String> userRoles = new ArrayList<>();
 
         if (!optionalUser.isPresent()) {
             return new ResponseEntity<Object>("User Not Found", HttpStatus.BAD_REQUEST);
@@ -97,6 +110,18 @@ public class MyUserService implements UserDetailsService {
         userProfile.setMobileNumber(user.getMobileNumber());
         userProfile.setName(user.getName());
         userProfile.setAge(user.getAge());
+        userProfile.setEnable(user.isEnabled());
+
+        Iterable<Roles> userRolesList = rolesRepository.findByUserId(user.getId());
+        Iterator<Roles> userRolesListIterator = userRolesList.iterator();
+
+        while (userRolesListIterator.hasNext()) {
+            Roles userRole = userRolesListIterator.next();
+
+            userRoles.add(userRole.getRole());
+        }
+
+        userProfile.setRoles(userRoles);
 
         return new ResponseEntity<Object>(userProfile, HttpStatus.OK);
 
@@ -192,7 +217,7 @@ public class MyUserService implements UserDetailsService {
         MyUser user = optionalUser.get();
         Iterable<Roles> rolesList = rolesRepository.findByUserId(user.getId());
         Iterator<Roles> rolesListIterator = rolesList.iterator();
-        
+
         while (rolesListIterator.hasNext()) {
             Roles userRole = rolesListIterator.next();
             if (userRole.getRole().equals("admin")) {
@@ -228,6 +253,54 @@ public class MyUserService implements UserDetailsService {
 
         }
 
+    }
+
+    @Transactional
+    public ResponseEntity<Object> deleteUser(String mobileNumber) {
+
+        // order
+        // passenger
+        // ticket
+        // roles
+        // user
+        Optional<MyUser> optionalUser = userRespository.findUserByMobileNumber(mobileNumber);
+
+        if (!optionalUser.isPresent()) {
+            return new ResponseEntity<Object>("User not found", HttpStatus.BAD_REQUEST);
+        }
+
+        MyUser user = optionalUser.get();
+
+        Iterable<Roles> userRoles = rolesRepository.findByUserId(user.getId());
+        Iterator<Roles> userRolesIterator = userRoles.iterator();
+
+        while (userRolesIterator.hasNext()) {
+            Roles userRole = userRolesIterator.next();
+
+            if (userRole.getRole().equals("admin")) {
+                return new ResponseEntity<Object>("Admin can not be deleted", HttpStatus.BAD_REQUEST);
+            }
+
+        }
+
+        rolesRepository.deleteAll(userRoles);
+
+        Iterable<Orders> userBookings = orderReposistory.findAllByUserId(user.getId());
+        Iterator<Orders> bookingsIterator = userBookings.iterator();
+
+        while (bookingsIterator.hasNext()) {
+            Orders bookedTickets = bookingsIterator.next();
+            Ticket userTicket = bookedTickets.getTicket();
+
+            userTicket.setBus(null);
+            ticketReposistory.delete(userTicket);
+            passengerReposistory.deleteAll(passengerReposistory.findByTicketId(userTicket.getId()));
+            orderReposistory.delete(bookedTickets);
+        }
+
+        userRespository.delete(user);
+
+        return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
     }
 
 }

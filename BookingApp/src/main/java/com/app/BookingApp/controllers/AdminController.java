@@ -71,9 +71,14 @@ public class AdminController {
 
     }
 
-    // @DeleteMapping("/delete/bus/{id}")
-    // public ResponseEntity<Object> deleteBusData(@PathVariable("id") String busRegisterNumber){
-    //     return busService.deleteBusData(busRegisterNumber);
-    // }
+    @DeleteMapping("/delete/bus/{id}")
+    public ResponseEntity<Object> deleteBusData(@PathVariable("id") String busRegisterNumber){
+        return busService.deleteBusData(busRegisterNumber);
+    }
+
+    @DeleteMapping("/delete/user/{id}")
+    public ResponseEntity<Object> existingUserData(@PathVariable("id") String mobileNumber){
+        return userService.deleteUser(mobileNumber);
+    }
 
 }

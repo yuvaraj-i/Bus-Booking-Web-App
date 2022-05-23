@@ -1,5 +1,7 @@
 package com.app.BookingApp.services;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Optional;
 
 import javax.servlet.http.Cookie;
@@ -69,14 +71,24 @@ public class HomeService {
         }
 
         MyUser userData = userResposistory.findUserByMobileNumber(user.getMobileNumber()).get();
-        MyClaims claims = new MyClaims(userData.getMobileNumber());
+        Iterable<Roles> userRolesList = rolesRepository.findByUserId(userData.getId());
+        Iterator<Roles> rolesIterator = userRolesList.iterator();
+        ArrayList<String> roles = new ArrayList<>();
+
+        while (rolesIterator.hasNext()) {
+            Roles userRole = rolesIterator.next();
+            roles.add(userRole.getRole());
+        }
+
+        MyClaims claims = new MyClaims(userData.getMobileNumber(), roles);
         String jwtToken = jwtUtils.generateToken(claims);
         String refreshToken = refreshUtils.generateRefreshToken(claims);
 
-        Cookie jwtCookie = addCookie("Authorization_1", jwtToken, 60 * 60 * 30);
+        Cookie jwtCookie = addCookie("Authorization_1", jwtToken, 60 * 60 * 24 * 30);
+        jwtCookie.setHttpOnly(false);
         response.addCookie(jwtCookie);
 
-        Cookie refreshCookie = addCookie("Authorization_2", refreshToken, 60 * 60 * 30);
+        Cookie refreshCookie = addCookie("Authorization_2", refreshToken, 60 * 60 * 24 * 30);
         response.addCookie(refreshCookie);
 
         return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);

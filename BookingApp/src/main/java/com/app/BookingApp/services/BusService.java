@@ -10,11 +10,17 @@ import javax.transaction.Transactional;
 
 import com.app.BookingApp.models.Bus;
 import com.app.BookingApp.models.Location;
+import com.app.BookingApp.models.Orders;
+import com.app.BookingApp.models.Passenger;
 import com.app.BookingApp.models.Seat;
 import com.app.BookingApp.models.SeatResponse;
+import com.app.BookingApp.models.Ticket;
 import com.app.BookingApp.repository.BusRespository;
 import com.app.BookingApp.repository.LocationRepository;
+import com.app.BookingApp.repository.OrderReposistory;
+import com.app.BookingApp.repository.PassengerReposistory;
 import com.app.BookingApp.repository.SeatRepository;
+import com.app.BookingApp.repository.TicketReposistory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,13 +33,20 @@ public class BusService {
     private BusRespository busRespository;
     private LocationRepository locationRepository;
     private SeatRepository seatRepository;
+    private TicketReposistory ticketReposistory;
+    private OrderReposistory orderReposistory;
+    private PassengerReposistory passengerReposistory;
 
     @Autowired
     public BusService(BusRespository busRespository, LocationRepository locationRepository,
-            SeatRepository seatRepository) {
+            SeatRepository seatRepository, TicketReposistory ticketReposistory, OrderReposistory orderReposistory,
+            PassengerReposistory passengerReposistory) {
         this.busRespository = busRespository;
         this.locationRepository = locationRepository;
         this.seatRepository = seatRepository;
+        this.ticketReposistory = ticketReposistory;
+        this.orderReposistory = orderReposistory;
+        this.passengerReposistory = passengerReposistory;
     }
 
     public ResponseEntity<Object> getBusDetails(Long id) {
@@ -211,9 +224,22 @@ public class BusService {
 
         Bus bus = optionalBus.get();
         Iterable<Seat> busSeatsList = seatRepository.findByBusId(bus.getId());
-        
-        
         seatRepository.deleteAll(busSeatsList);
+        
+        Iterable<Ticket> tickets = ticketReposistory.findByBusId(bus.getId());
+        Iterator<Ticket> ticketsIterator = tickets.iterator();
+
+        while (ticketsIterator.hasNext()) {
+            Ticket userBookedTickets = ticketsIterator.next();
+
+            Iterable<Orders> totalTickets = orderReposistory.findAllByTicketId(userBookedTickets.getId());
+            Iterable<Passenger> passenger = passengerReposistory.findByTicketId(userBookedTickets.getId());
+
+            orderReposistory.deleteAll(totalTickets);
+            passengerReposistory.deleteAll(passenger);
+        }
+
+        ticketReposistory.deleteAll(tickets);
         busRespository.delete(bus);
 
         return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);

@@ -28,10 +28,10 @@ public class JwtTokenUtils {
     }
 
     public boolean isTokenExpried(String jwtToken) {
-        if(jwtToken == null){
+        if (jwtToken == null) {
             return true;
         }
-        
+
         try {
 
             Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(jwtToken);
@@ -54,9 +54,18 @@ public class JwtTokenUtils {
     }
 
     private Claims getPayload(String token) {
-        return Jwts.parser()
-                .setSigningKey(SECRET_KEY).parseClaimsJws(token)
-                .getBody();
+        Claims tokenValue = null;
+        try {
+            tokenValue = Jwts.parser()
+                    .setSigningKey(SECRET_KEY).parseClaimsJws(token)
+                    .getBody();
+        }
+
+        catch (ExpiredJwtException e) {
+            tokenValue = e.getClaims();
+        }
+
+        return tokenValue;
     }
 
     public boolean isTokenSigned(String token) {
@@ -66,6 +75,7 @@ public class JwtTokenUtils {
     public String generateToken(MyClaims payload) {
         HashMap<String, Object> claims = new HashMap<>();
         claims.put("mobile_number", payload.getMobileNumber());
+        claims.put("roles", payload.getRoles());
 
         return createToken(claims);
     }
@@ -76,8 +86,7 @@ public class JwtTokenUtils {
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
-    public String getClamisFromExpriedToken(String jwtToken) {
-
+    public Claims getClamisFromExpriedToken(String jwtToken) {
         Claims payload = null;
 
         try {
@@ -88,9 +97,7 @@ public class JwtTokenUtils {
             payload = e.getClaims();
         }
 
-        String mobileNumber = (String) payload.get("mobile_number");
-
-        return mobileNumber;
+        return payload;
 
     }
 

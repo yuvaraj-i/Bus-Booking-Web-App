@@ -54,19 +54,18 @@ public class RequestFilter extends OncePerRequestFilter {
 
         if (refreshToken != null && jwtUtils.isTokenExpried(jwtToken)) {
             jwtToken = refreshUtils.renewAccessToken(jwtToken);
-
             Cookie cookie = new Cookie("Authorization_1", null);
             cookie.setMaxAge(0);
             cookie.setPath("/");
             response.addCookie(cookie);
 
             Cookie newCookie = new Cookie("Authorization_1", jwtToken);
-            newCookie.setHttpOnly(true);
-            newCookie.setMaxAge(60 * 60 * 30);
+            newCookie.setHttpOnly(false);
+            newCookie.setMaxAge(60 * 60 * 24 *30);
             newCookie.setPath("/");
             response.addCookie(newCookie);
 
-        }
+        }   
 
         if (jwtToken != null) {
             mobileNumber = jwtUtils.getUserMobileNumber(jwtToken);

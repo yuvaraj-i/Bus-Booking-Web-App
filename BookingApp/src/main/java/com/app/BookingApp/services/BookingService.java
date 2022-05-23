@@ -81,6 +81,14 @@ public class BookingService {
         setAvaliabilty(busId, userBookingDetails.getSeatNumbers());
         int bookingCharges = busService.calculateBusCharges(bus, userBookingDetails.getSeatNumbers().size());
 
+        Ticket ticket = new Ticket();
+        ticket.setBus(bus);
+        ticket.setSeatNumbers(userBookingDetails.getSeatNumbers());
+        ticket.setBusCharges(bookingCharges);
+        ticket.setBookedDate(LocalDate.now());
+        ticket.setTravellingDate(userBookingDetails.getTravelingDate());
+        Ticket ticketSave = ticketReposistory.save(ticket);
+
         ArrayList<Passenger> savePassengersList = new ArrayList<>();
         
         for(int index = 0; index < passengersList.size(); index++) {
@@ -89,39 +97,18 @@ public class BookingService {
             Passenger passenger = new Passenger();
             passenger.setName(passengerDetails.getName());
             passenger.setGender(passengerDetails.getGender());
+            passenger.setTicket(ticketSave);
             Passenger savedPassenger = passengerReposistory.save(passenger);
 
             savePassengersList.add(savedPassenger);
         }
-
-        Ticket ticket = new Ticket();
-        ticket.setBus(bus);
-        ticket.setPassenger(savePassengersList);
-        ticket.setSeatNumbers(userBookingDetails.getSeatNumbers());
-        ticket.setBusCharges(bookingCharges);
-        ticket.setBookedDate(LocalDate.now());
-        ticket.setTravellingDate(userBookingDetails.getTravelingDate());
-        Ticket ticketSave = ticketReposistory.save(ticket);
 
         Orders userOrders = new Orders();
         userOrders.setTicket(ticketSave);
         userOrders.setUser(user);
         orderReposistory.save(userOrders);
 
-        BookingResponse bookingDetails = new BookingResponse();
-        bookingDetails.setBusName(bus.getBusName());
-        bookingDetails.setDestinationLocation(bus.getEndLocation());
-        bookingDetails.setBoardingLocation(bus.getStartLocation());
-        bookingDetails.setPickupPoint(bus.getPickupPoint());
-        bookingDetails.setDropingPoint(bus.getDropingPoint());
-        bookingDetails.setBookingDate(ticketSave.getBookedDate());
-        bookingDetails.setPassengers(ticketSave.getPassenger());
-        bookingDetails.setSeatNumbers(userBookingDetails.getSeatNumbers());
-        bookingDetails.setCharges(bookingCharges);
-        bookingDetails.setTicketId(ticketSave.getId());
-        bookingDetails.setTravelingDate(ticketSave.getTravellingDate());
-
-        return new ResponseEntity<Object>(bookingDetails, HttpStatus.OK);
+        return new ResponseEntity<Object>("SUCCESS", HttpStatus.OK);
 
     }
 
@@ -163,8 +150,18 @@ public class BookingService {
             Orders userOrder = usersBookingsIterator.next();
             Ticket busTicket = userOrder.getTicket();
             Bus bookedBus = busTicket.getBus();
+            Iterable<Passenger> passengersListEntity = passengerReposistory.findByTicketId(busTicket.getId());
+            Iterator<Passenger> passengerIterator = passengersListEntity.iterator();
+            ArrayList<Passenger> passengersList = new ArrayList<>();
 
-            // String busName = busTicket.getBus().getBusName();
+            while (passengerIterator.hasNext()) {
+                Passenger passenger = passengerIterator.next();
+
+                Passenger responsePassenger = new Passenger();
+                responsePassenger.setName(passenger.getName());
+                responsePassenger.setGender(passenger.getGender());
+                passengersList.add(responsePassenger);
+            }
 
             BookingResponse bookingDetails = new BookingResponse();
             bookingDetails.setBusName(bookedBus.getBusName());
@@ -173,16 +170,18 @@ public class BookingService {
             bookingDetails.setPickupPoint(bookedBus.getPickupPoint());
             bookingDetails.setDropingPoint(bookedBus.getDropingPoint());
             bookingDetails.setBookingDate(busTicket.getBookedDate());
-            bookingDetails.setPassengers(busTicket.getPassenger());
+            bookingDetails.setTravelingDate(busTicket.getTravellingDate());
+            bookingDetails.setPassengers(passengersList);
             bookingDetails.setSeatNumbers(busTicket.getSeatNumbers());
             bookingDetails.setCharges(busTicket.getBusCharges());
             bookingDetails.setTicketId(busTicket.getId());
+            bookingDetails.setBusType(bookedBus.getType());
 
             userTickets.add(bookingDetails);
         }
 
         if (count == 0) {
-            return new ResponseEntity<Object>("Booking History is empty", HttpStatus.OK);
+            return new ResponseEntity<Object>("Booking History is empty", HttpStatus.BAD_REQUEST);
 
         }
 
